@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(npm install:*)",
+      "Bash(convert --version)",
+      "Bash(ls -lh /Users/eventskst/Desktop/syotenkyori/icon-*.png)"
+    ]
+  }
+}

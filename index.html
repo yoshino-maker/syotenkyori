@@ -1,0 +1,5289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>焦点距離 Pro</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FocalPro">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#2563eb">
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --warning-bg: #fef2f2;
+    --warning-border: #fecaca;
+    --warning-text: #dc2626;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --success-text: #16a34a;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: 40px;
+  }
+
+  header {
+    text-align: center;
+    padding: 20px 0 16px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 8px;
+  }
+
+  select {
+    width: 100%;
+    padding: 10px 36px 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    background: white;
+    color: var(--text);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+
+  .sensor-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 8px;
+    padding: 4px 10px;
+    background: #eff6ff;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 500;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 10px 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tab-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .control-row {
+    margin-bottom: 16px;
+  }
+
+  .control-row:last-child { margin-bottom: 0; }
+
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .control-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .control-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 6px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .result-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .result-main {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .result-exact {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .warn-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--warning-text);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .save-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .save-btn:hover { background: var(--primary-dark); }
+  .save-btn:active { transform: scale(0.98); }
+
+  /* DoF */
+  .dof-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .dof-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .dof-item.full {
+    grid-column: 1 / -1;
+    background: var(--success-bg);
+    border-color: var(--success-border);
+  }
+
+  .dof-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .dof-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .dof-value.green { color: var(--success-text); }
+  .dof-value.inf { font-size: 32px; color: var(--success-text); }
+
+  .aperture-presets {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .ap-btn {
+    padding: 5px 11px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: white;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.1s;
+    color: var(--text-muted);
+  }
+
+  .ap-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .hyperfocal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .hyperfocal-row span:last-child {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  /* Saved */
+  .lens-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .lens-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .lens-focal {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--primary);
+    min-width: 64px;
+    white-space: nowrap;
+  }
+
+  .lens-details { flex: 1; }
+
+  .lens-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .lens-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    transition: color 0.1s;
+    line-height: 1;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .del-btn:hover { color: var(--warning-text); background: var(--warning-bg); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--text-muted);
+  }
+
+  .empty-icon { font-size: 44px; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; margin-bottom: 6px; }
+  .empty-state small { font-size: 12px; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  .modal {
+    background: white;
+    border-radius: 16px 16px 0 0;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .modal h3 { font-size: 16px; margin-bottom: 14px; }
+
+  .modal input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .modal input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    flex: 1;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-muted);
+  }
+
+  .modal-actions .btn-primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* Recommended Lenses */
+  .recommend-box {
+    background: #f8faff;
+    border: 1px solid #c7d9ff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+
+  .recommend-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .recommend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .recommend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .recommend-focal {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--primary);
+    min-width: 52px;
+    white-space: nowrap;
+  }
+
+  .recommend-info { flex: 1; }
+
+  .recommend-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .recommend-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .recommend-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: var(--primary);
+    white-space: nowrap;
+  }
+
+  .recommend-badge.exact {
+    background: #f0fdf4;
+    color: var(--success-text);
+  }
+
+  /* ---- Zoom Conversion tab ---- */
+  .zoom-pair {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .zoom-arrow {
+    font-size: 22px;
+    color: var(--text-muted);
+    text-align: center;
+    padding-bottom: 4px;
+  }
+
+  .zoom-result-box {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #86efac;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .zoom-result-main {
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--success-text);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .zoom-result-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .zoom-eq-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .zoom-eq-row span:last-child {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  .focal-input-wrap {
+    position: relative;
+  }
+
+  .focal-input-wrap input[type="number"] {
+    width: 100%;
+    padding: 10px 36px 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    background: white;
+  }
+
+  .focal-input-wrap input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+
+  .focal-input-unit {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* ---- Exposure tab ---- */
+  .exp-triangle {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .exp-cell {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .exp-cell:hover { border-color: #93c5fd; }
+
+  .exp-cell.locked {
+    background: #eff6ff;
+    border-color: var(--primary);
+  }
+
+  .exp-cell-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+  }
+
+  .exp-cell-val {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .exp-cell.locked .exp-cell-val { color: var(--primary); }
+
+  .exp-lock-icon {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 10px;
+  }
+
+  .exp-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .exp-slider-section {
+    margin-bottom: 14px;
+  }
+
+  .exp-slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .exp-slider-label span:last-child {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 14px;
+  }
+
+  .exp-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .exp-result-row.blue {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: var(--primary);
+  }
+
+  .exp-result-row.green {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+  }
+
+  .exp-result-row.orange {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #c2410c;
+  }
+
+  .exp-result-row span:last-child {
+    font-weight: 800;
+    font-size: 16px;
+  }
+
+  /* ---- Shooting Memo tab ---- */
+  .memo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .memo-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .memo-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .memo-field input[type="text"],
+  .memo-field input[type="number"],
+  .memo-field select.memo-select,
+  .memo-field textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text);
+    background: white;
+    font-family: inherit;
+  }
+
+  .memo-field input:focus,
+  .memo-field select.memo-select:focus,
+  .memo-field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+
+  .memo-field textarea {
+    resize: vertical;
+    min-height: 56px;
+  }
+
+  .memo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .memo-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .memo-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5px;
+  }
+
+  .memo-item-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+    margin-right: 8px;
+  }
+
+  .memo-item-actions {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .memo-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+  }
+
+  .memo-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #eff6ff;
+    color: var(--primary);
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .memo-tag.green {
+    background: var(--success-bg);
+    color: var(--success-text);
+  }
+
+  .memo-tag.orange {
+    background: #fff7ed;
+    color: #c2410c;
+  }
+
+  .memo-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 5px;
+    line-height: 1.4;
+  }
+
+  .memo-date {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .load-btn {
+    font-size: 11px;
+    padding: 3px 9px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+
+  .load-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* ---- Tab wrapping for 6 tabs ---- */
+  .tabs {
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    flex: 1 1 calc(33% - 4px);
+    min-width: 0;
+    font-size: 12px;
+    padding: 9px 4px;
+  }
+
+  /* ---- Bigger sliders for mobile ---- */
+  input[type="range"] {
+    height: 8px;
+    border-radius: 6px;
+  }
+
+  /* ---- 35mm equiv badge ---- */
+  .equiv-badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: rgba(37,99,235,0.12);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  /* ---- Boke grid ---- */
+  .boke-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .boke-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .boke-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .boke-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ---- Framing preview (person silhouette) ---- */
+  .frame-with-preview {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .frame-preview-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .frame-preview-name {
+    font-size: 10px;
+    color: var(--primary);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* ---- DoF visualization bar ---- */
+  .dof-vis-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px 16px;
+    margin-bottom: 10px;
+  }
+
+  .dof-vis-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+
+  .dof-vis-bar-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0 16px;
+  }
+
+  .dof-vis-cam { font-size: 20px; flex-shrink: 0; }
+
+  .dof-vis-bar-inner {
+    flex: 1;
+    position: relative;
+    height: 14px;
+  }
+
+  .dof-vis-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 7px;
+  }
+
+  .dof-vis-zone {
+    position: absolute;
+    top: 0; bottom: 0;
+    background: linear-gradient(90deg, #86efac, #4ade80);
+    border-radius: 7px;
+    transition: left 0.3s, width 0.3s;
+  }
+
+  .dof-vis-zone.to-inf {
+    border-radius: 7px 0 0 7px;
+    background: linear-gradient(90deg, #86efac, rgba(74,222,128,0.2));
+  }
+
+  .dof-vis-subject {
+    position: absolute;
+    top: -10px; bottom: -10px;
+    width: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+    transform: translateX(-50%);
+    transition: left 0.3s;
+  }
+
+  .dof-vis-subject::before {
+    content: '人';
+    position: absolute;
+    bottom: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .dof-vis-near-lbl, .dof-vis-far-lbl {
+    position: absolute;
+    top: calc(100% + 6px);
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    color: var(--success-text);
+  }
+
+  /* ---- Bokeh circle visuals ---- */
+  .boke-vis-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 14px;
+    padding: 6px 0 8px;
+    margin-bottom: 6px;
+  }
+
+  .boke-vis-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .boke-circle {
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%,
+      rgba(255,255,255,0.95) 0%,
+      rgba(147,197,253,0.7) 35%,
+      rgba(59,130,246,0.2) 100%);
+    border: 1.5px solid rgba(59,130,246,0.35);
+    transition: width 0.3s, height 0.3s;
+    flex-shrink: 0;
+  }
+
+  .boke-vis-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .boke-vs-sep {
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-bottom: 22px;
+  }
+
+  /* ---- Composition frame buttons ---- */
+  .frame-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    flex: 1;
+  }
+
+  .frame-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px 8px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    cursor: pointer;
+    transition: all 0.15s;
+    gap: 5px;
+  }
+
+  .frame-btn.active {
+    border-color: var(--primary);
+    background: #eff6ff;
+  }
+
+  .frame-icon { font-size: 26px; line-height: 1; }
+
+  .frame-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .frame-btn.active .frame-label { color: var(--primary); }
+
+  /* ---- Step headers ---- */
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  /* ---- Focal range description ---- */
+  .focal-range-desc {
+    font-size: 12px;
+    color: rgba(37,99,235,0.8);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* ---- Technical term hints ---- */
+  .term-hint {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  /* ---- Weather scene selector ---- */
+  .weather-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .weather-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 7px 3px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    cursor: pointer;
+    transition: all 0.15s;
+    gap: 3px;
+  }
+
+  .weather-btn.active {
+    border-color: var(--primary);
+    background: #eff6ff;
+  }
+
+  .weather-btn-icon  { font-size: 18px; line-height: 1; }
+  .weather-btn-label { font-size: 9px; font-weight: 600; color: var(--text-muted); text-align: center; }
+  .weather-btn.active .weather-btn-label { color: var(--primary); }
+
+  .weather-ev-badge {
+    font-size: 8px;
+    font-weight: 800;
+    color: var(--text-muted);
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 1px 4px;
+  }
+
+  .weather-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 7px 10px;
+    background: var(--bg);
+    border-radius: 8px;
+    line-height: 1.4;
+  }
+
+  /* ---- EV Gauge ---- */
+  .ev-gauge-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .ev-gauge-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 20px;
+  }
+
+  .ev-gauge-wrap {
+    position: relative;
+    height: 20px;
+    margin-bottom: 4px;
+  }
+
+  .ev-gauge-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: linear-gradient(to right,
+      #0f172a  0%,
+      #1e3a6e 22%,
+      #1d4ed8 44%,
+      #16a34a 67%,
+      #ca8a04 83%,
+      #dc2626 100%
+    );
+  }
+
+  .ev-zone-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+    margin-top: 5px;
+    margin-bottom: 8px;
+  }
+
+  .ev-zone-labels span {
+    font-size: 8.5px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .ev-target-zone {
+    position: absolute;
+    top: -4px; bottom: -4px;
+    background: rgba(255,255,255,0.3);
+    border: 2.5px solid rgba(255,255,255,0.85);
+    border-radius: 8px;
+    transition: left 0.4s, width 0.4s;
+    display: none;
+  }
+
+  .ev-needle {
+    position: absolute;
+    top: -7px; bottom: -7px;
+    width: 4px;
+    background: white;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    transition: left 0.3s;
+  }
+
+  .ev-needle::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top: 6px solid white;
+    border-bottom: none;
+  }
+
+  .ev-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .ev-current-badge {
+    font-size: 12px;
+    font-weight: 800;
+    color: white;
+    background: var(--primary);
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+
+  .ev-target-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  /* ---- Verdict box ---- */
+  .verdict-box {
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  .verdict-box.show { display: block; }
+
+  .verdict-box.ok    { background: var(--success-bg);  border: 1px solid var(--success-border); color: var(--success-text); }
+  .verdict-box.over  { background: #fff7ed; border: 1px solid #fed7aa; color: #c2410c; }
+  .verdict-box.under { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+  .verdict-box.bad   { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); }
+
+  .verdict-header { font-size: 14px; font-weight: 800; margin-bottom: 5px; }
+  .verdict-detail { font-size: 12px; line-height: 1.6; }
+
+  /* ---- Recommended exposure settings ---- */
+  .rec-settings-list { display: flex; flex-direction: column; gap: 7px; }
+
+  .rec-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+  }
+
+  .rec-label  { font-size: 11px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+  .rec-params { font-size: 12px; color: var(--text); font-weight: 500; }
+  .rec-ss     { font-size: 15px; font-weight: 800; color: var(--primary); text-align: right; }
+  .rec-status { font-size: 10px; font-weight: 700; text-align: right; margin-top: 2px; }
+  .rec-status.ok     { color: var(--success-text); }
+  .rec-status.caution{ color: #c2410c; }
+  .rec-status.tripod { color: var(--warning-text); }
+
+  /* ---- Light Meter ---- */
+  .meter-viewfinder {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #0f172a;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  #meterVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .meter-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Grid lines */
+  .meter-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+    background-size: 33.33% 33.33%;
+  }
+
+  .meter-spot-circle {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    border: 2px solid rgba(255,255,255,0.8);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+    display: none;
+  }
+
+  .meter-spot-circle::before,
+  .meter-spot-circle::after {
+    content: '';
+    position: absolute;
+    background: rgba(255,255,255,0.8);
+  }
+
+  .meter-spot-circle::before {
+    top: 50%; left: -10px; right: -10px; height: 1px; transform: translateY(-50%);
+  }
+
+  .meter-spot-circle::after {
+    left: 50%; top: -10px; bottom: -10px; width: 1px; transform: translateX(-50%);
+  }
+
+  .meter-ev-overlay {
+    position: absolute;
+    top: 10px; right: 12px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .meter-ev-overlay span { font-size: 22px; font-weight: 900; }
+
+  .meter-mode-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    gap: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .meter-mode-btn {
+    flex: 1;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .meter-mode-btn.active {
+    color: white;
+    background: rgba(37,99,235,0.6);
+  }
+
+  .meter-start-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .meter-status {
+    font-size: 12px;
+    color: var(--text-muted);
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  /* ---- 露出記録 ---- */
+  .meter-record-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .meter-record-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .meter-record-btn:active:not(:disabled) { opacity: 0.85; }
+
+  .meter-log-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .meter-log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .meter-log-clear {
+    background: none;
+    border: none;
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .meter-log-clear:hover { background: var(--warning-bg); color: var(--warning-text); }
+  .meter-log-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .meter-log-item:last-child { border-bottom: none; }
+  .meter-log-ev {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary);
+    min-width: 48px;
+    text-align: center;
+  }
+  .meter-log-detail { flex: 1; }
+  .meter-log-scene { font-weight: 600; font-size: 13px; }
+  .meter-log-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .meter-log-del {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 6px;
+    min-width: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .meter-log-del:hover { color: var(--warning-text); background: var(--warning-bg); }
+  .meter-log-empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* ---- Live EV display ---- */
+  .meter-ev-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .meter-ev-main {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #0f172a, #1e3a6e);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .meter-ev-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 80%, rgba(37,99,235,0.3), transparent 70%);
+  }
+
+  .meter-ev-number {
+    font-size: 72px;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+    letter-spacing: -3px;
+    position: relative;
+  }
+
+  .meter-ev-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    position: relative;
+    margin-top: 2px;
+  }
+
+  .meter-ev-scene {
+    font-size: 13px;
+    font-weight: 700;
+    color: #60a5fa;
+    position: relative;
+    margin-top: 6px;
+  }
+
+  .meter-needle-gauge {
+    grid-column: 1 / -1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px 18px;
+    position: relative;
+  }
+
+  .meter-needle-gauge-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 18px;
+  }
+
+  /* Needle-style analog gauge */
+  .meter-analog-wrap {
+    position: relative;
+    height: 60px;
+    margin: 0 8px;
+  }
+
+  .meter-analog-arc {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* ---- Histogram ---- */
+  .histogram-wrap {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  #histogramCanvas {
+    width: 100%;
+    display: block;
+    height: 70px;
+  }
+
+  .histogram-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .histogram-alert {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    padding: 5px 8px;
+    border-radius: 6px;
+    min-height: 24px;
+  }
+
+  .histogram-alert.over  { background: #fff7ed; color: #c2410c; }
+  .histogram-alert.under { background: #eff6ff; color: #1d4ed8; }
+  .histogram-alert.ok    { background: var(--success-bg); color: var(--success-text); }
+
+  /* ---- Meter rec settings ---- */
+  .meter-rec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .meter-rec-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 10px 8px;
+  }
+
+  .meter-rec-icon  { font-size: 16px; }
+  .meter-rec-name  { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-left: 4px; }
+  .meter-rec-ss    { font-size: 20px; font-weight: 900; color: var(--primary); margin-top: 3px; line-height: 1; }
+  .meter-rec-params{ font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .meter-rec-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+  .meter-rec-badge.ok     { background: var(--success-bg); color: var(--success-text); }
+  .meter-rec-badge.caution{ background: #fff7ed; color: #c2410c; }
+  .meter-rec-badge.tripod { background: var(--warning-bg); color: var(--warning-text); }
+
+  /* ---- White Balance ---- */
+  .wb-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .wb-top-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .wb-swatch-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .wb-swatch {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: background 0.4s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+  .wb-swatch-label {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .wb-readout {
+    flex: 1;
+  }
+
+  .wb-kelvin {
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1px;
+    transition: color 0.4s;
+  }
+
+  .wb-kelvin-unit {
+    font-size: 16px;
+    font-weight: 600;
+    opacity: 0.7;
+  }
+
+  .wb-scene-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .wb-tint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* CCT gradient bar */
+  .wb-cct-bar-wrap {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 0 4px;
+  }
+
+  .wb-cct-bar {
+    height: 14px;
+    border-radius: 7px;
+    background: linear-gradient(to right,
+      #ff6b00 0%,      /* 1000K  タングステン */
+      #ff9500 8%,      /* 2700K  電球 */
+      #ffb84d 18%,     /* 3200K  ハロゲン */
+      #ffd580 30%,     /* 4000K  白熱灯 */
+      #fff2c2 45%,     /* 5000K  晴れ */
+      #ffffff 55%,     /* 5500K  基準白 */
+      #ddeeff 65%,     /* 6500K  曇り */
+      #bbd4ff 78%,     /* 7500K  日陰 */
+      #9bbcff 90%,     /* 9000K  青空 */
+      #7fa8ff 100%     /* 10000K 快晴 */
+    );
+    position: relative;
+  }
+
+  .wb-cct-needle {
+    position: absolute;
+    top: -6px; bottom: -6px;
+    width: 4px;
+    background: white;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    transition: left 0.4s cubic-bezier(.4,2,.6,1);
+  }
+
+  .wb-cct-tick-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+
+  /* Tint bar (Green ↔ Magenta) */
+  .wb-tint-bar-wrap {
+    position: relative;
+    margin-bottom: 14px;
+    padding: 0 4px;
+  }
+
+  .wb-tint-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .wb-tint-bar {
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #22c55e, #e5e7eb, #d946ef);
+    position: relative;
+  }
+
+  .wb-tint-needle {
+    position: absolute;
+    top: -4px; bottom: -4px;
+    width: 3px;
+    background: white;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    transition: left 0.4s cubic-bezier(.4,2,.6,1);
+  }
+
+  /* Camera WB preset recommendations */
+  .wb-rec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .wb-rec-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    transition: border-color 0.2s;
+  }
+
+  .wb-rec-item.best {
+    border-color: var(--primary);
+    background: #eff6ff;
+  }
+
+  .wb-rec-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(0,0,0,0.1);
+  }
+
+  .wb-rec-info { flex: 1; min-width: 0; }
+  .wb-rec-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .wb-rec-k    { font-size: 10px; color: var(--text-muted); }
+
+  .wb-rec-badge {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .wb-rec-badge.best    { background: #eff6ff; color: var(--primary); }
+  .wb-rec-badge.close   { background: var(--success-bg); color: var(--success-text); }
+  .wb-rec-badge.far     { background: var(--warning-bg); color: var(--warning-text); }
+
+  /* Diff indicator row */
+  .wb-diff-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .wb-diff-row span:last-child { font-weight: 700; font-size: 13px; color: var(--text); }
+
+  /* ---- Meter: auto-calc result card ---- */
+  .meter-auto-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .meter-auto-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 8px 10px;
+    text-align: center;
+  }
+
+  .meter-auto-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  .meter-auto-val {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--primary);
+    line-height: 1;
+  }
+
+  .meter-auto-val.big { font-size: 18px; }
+
+  /* ---- Manual dial card ---- */
+  .dial-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .dial-row:last-child { margin-bottom: 0; }
+
+  .dial-icon {
+    font-size: 18px;
+    width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .dial-info { flex: 1; min-width: 0; }
+
+  .dial-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+
+  .dial-val {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 5px;
+  }
+
+  input.dial-range {
+    width: 100%;
+    height: 8px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  /* ---- EV diff meter ---- */
+  .ev-diff-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .ev-diff-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+
+  .ev-diff-bar-wrap {
+    position: relative;
+    height: 16px;
+    margin: 0 6px 4px;
+  }
+
+  .ev-diff-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: linear-gradient(to right,
+      #1d4ed8 0%, #3b82f6 25%,
+      #22c55e 45%, #22c55e 55%,
+      #f59e0b 75%, #dc2626 100%
+    );
+    opacity: 0.25;
+  }
+
+  .ev-diff-ok-zone {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 42%; width: 16%;
+    background: rgba(34,197,94,0.4);
+    border-radius: 8px;
+  }
+
+  .ev-diff-needle {
+    position: absolute;
+    top: -6px; bottom: -6px;
+    width: 4px;
+    background: white;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    transition: left 0.3s cubic-bezier(.4,2,.6,1);
+    left: 50%;
+  }
+
+  .ev-diff-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  .ev-diff-number {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 900;
+    margin: 10px 0 4px;
+    transition: color 0.3s;
+  }
+
+  .ev-diff-verdict {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 6px;
+  }
+
+  .ev-diff-verdict.ok    { background: var(--success-bg); color: var(--success-text); }
+  .ev-diff-verdict.over  { background: #fff7ed; color: #c2410c; }
+  .ev-diff-verdict.under { background: #eff6ff; color: #1d4ed8; }
+  .ev-diff-verdict.bad   { background: var(--warning-bg); color: var(--warning-text); }
+
+  /* ---- Manual Kelvin dial ---- */
+  .kelvin-manual-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .kelvin-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .kelvin-swatch-large {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    border: 2px solid rgba(128,128,128,0.2);
+    flex-shrink: 0;
+    transition: background 0.2s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+
+  .kelvin-readout-wrap { flex: 1; }
+
+  .kelvin-manual-val {
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1px;
+    transition: color 0.2s;
+  }
+
+  .kelvin-manual-unit { font-size: 16px; font-weight: 600; opacity: 0.65; }
+
+  .kelvin-manual-scene {
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  /* Rainbow slider track */
+  .kelvin-slider-wrap { position: relative; margin-bottom: 8px; }
+
+  input#kelvinSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 14px;
+    border-radius: 7px;
+    outline: none;
+    cursor: pointer;
+    background: linear-gradient(to right,
+      #ff6b00 0%, #ff9500 10%, #ffb84d 20%,
+      #ffd580 33%, #fff2c2 47%,
+      #ffffff 55%, #ddeeff 65%,
+      #bbd4ff 78%, #9bbcff 90%, #7fa8ff 100%
+    );
+    border: 1px solid var(--border);
+  }
+
+  input#kelvinSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: white;
+    border: 2.5px solid #94a3b8;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  input#kelvinSlider::-webkit-slider-thumb:hover { border-color: var(--primary); }
+
+  input#kelvinSlider::-moz-range-thumb {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: white;
+    border: 2.5px solid #94a3b8;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+  }
+
+  .kelvin-tick-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 5px;
+    margin-bottom: 12px;
+  }
+
+  /* Number input */
+  .kelvin-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .kelvin-input-row label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .kelvin-number-input {
+    flex: 1;
+    padding: 9px 40px 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  .kelvin-number-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
+
+  .kelvin-input-unit {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* Preset quick-pick chips */
+  .kelvin-preset-chips {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .kelvin-chip {
+    padding: 5px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .kelvin-chip:hover  { border-color: var(--primary); color: var(--primary); }
+  .kelvin-chip.active { border-color: var(--primary); background: var(--primary); color: white; }
+
+  /* WB diff compare strip */
+  .wb-diff-compare {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .wb-diff-swatch-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .wb-diff-swatch     { width: 42px; height: 42px; border-radius: 8px; border: 1.5px solid rgba(128,128,128,0.2); }
+  .wb-diff-swatch-lbl { font-size: 10px; font-weight: 700; color: var(--text-muted); text-align: center; }
+  .wb-diff-swatch-k   { font-size: 12px; font-weight: 900; color: var(--text); }
+
+  .wb-diff-vs {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .wb-diff-result-box {
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .wb-diff-result-box.ok     { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
+  .wb-diff-result-box.warm   { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .wb-diff-result-box.cool   { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .wb-diff-result-box.far    { background: var(--warning-bg); color: var(--warning-text); border: 1px solid var(--warning-border); }
+
+  /* ---- Correction hints ---- */
+  .correction-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .correction-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .correction-chip:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* ---- Dark mode ---- */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary: #60a5fa;
+      --primary-dark: #3b82f6;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --warning-bg: #2d1313;
+      --warning-border: #7f1d1d;
+      --warning-text: #fca5a5;
+      --success-bg: #0d2818;
+      --success-border: #166534;
+      --success-text: #4ade80;
+    }
+    select, .modal, .ap-btn, .load-btn,
+    .recommend-item, .lens-item, .memo-item,
+    .zoom-eq-row, .hyperfocal-row, .exp-cell,
+    .modal-actions button, .boke-item, .dof-item,
+    .frame-btn {
+      background: #1e293b;
+      color: var(--text);
+    }
+    .frame-btn.active { background: #1e3a6e; }
+    .focal-range-desc { color: rgba(96,165,250,0.9); }
+    .dof-vis-wrap { background: #1e293b; }
+    .meter-needle-gauge { background: #1e293b; }
+    .histogram-wrap { background: #000; }
+    .meter-rec-item { background: #0f172a; }
+    .meter-auto-item { background: #0f172a; }
+    .ev-diff-wrap { background: #1e293b; }
+    .correction-chip { background: #0f172a; }
+    .wb-card { background: #1e293b; }
+    .wb-rec-item { background: #0f172a; }
+    .wb-rec-item.best { background: #1e3a6e; }
+    .wb-diff-row { background: #0f172a; }
+    .kelvin-manual-card { background: #1e293b; }
+    .kelvin-number-input { background: #0f172a; color: var(--text); }
+    .kelvin-chip { background: #0f172a; }
+    .wb-diff-compare { background: #0f172a; }
+    .ev-gauge-card { background: #1e293b; }
+    .weather-desc { background: #0f172a; }
+    .weather-ev-badge { background: #0f172a; }
+    .rec-item { background: #0f172a; }
+    .verdict-box.under { background: #1e3a6e; border-color: #3b82f6; color: #93c5fd; }
+    .verdict-box.over  { background: #2d1a00; border-color: #92400e; color: #fbbf24; }
+    .dof-vis-track { background: #334155; }
+    .boke-circle {
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.6) 0%, rgba(96,165,250,0.4) 35%, rgba(59,130,246,0.1) 100%);
+      border-color: rgba(96,165,250,0.35);
+    }
+    .recommend-box { background: #1a2744; border-color: #2d4a8a; }
+    .zoom-result-box { background: linear-gradient(135deg, #0d2818, #14532d); border-color: #166534; }
+    .result-box { background: linear-gradient(135deg, #1e3a6e, #1e40af); border-color: #3b82f6; }
+    .exp-cell.locked { background: #1e3a6e; }
+    .tab-btn { background: #1e293b; color: var(--text-muted); }
+    .sensor-badge { background: #1e3a6e; }
+    .equiv-badge { background: rgba(96,165,250,0.2); }
+    .focal-input-wrap input[type="number"],
+    .memo-field input, .memo-field textarea { background: #0f172a; color: var(--text); }
+  }
+
+  /* ---- 記録タブ セクションタイトル ---- */
+  .logs-section-title {
+    font-size: 13px; font-weight: 700; color: var(--text-muted);
+    padding: 4px 2px 8px; letter-spacing: 0.5px;
+  }
+
+  /* ---- 場所入力（記録ボタン上） ---- */
+  .record-location-row { margin-bottom: 10px; }
+  .record-location-row input {
+    width: 100%; box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    background: var(--card);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .record-location-row input:focus { outline: none; border-color: var(--primary); }
+
+  /* ---- 記録タブ ---- */
+  .logs-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; font-weight: 700; font-size: 14px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 10px;
+  }
+  .logs-clear-btn {
+    background: none; border: none; color: var(--text-muted);
+    font-size: 12px; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+  }
+  .logs-clear-btn:hover { color: #ef4444; background: #fef2f2; }
+
+  .log-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+  }
+  .log-card-main { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+  .log-card-ev {
+    font-size: 22px; font-weight: 800; color: var(--primary);
+    min-width: 54px; text-align: center; line-height: 1.1;
+  }
+  .log-card-ev small { display: block; font-size: 10px; font-weight: 500; color: var(--text-muted); }
+  .log-card-info { flex: 1; min-width: 0; }
+  .log-card-scene { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+  .log-card-params { font-size: 12px; color: var(--text-muted); }
+  .log-card-location { font-size: 12px; color: var(--primary); margin-top: 3px; }
+  .log-card-note { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
+  .log-card-actions { display: flex; flex-direction: column; gap: 5px; }
+  .log-action-btn {
+    background: none; border: 1.5px solid var(--border);
+    border-radius: 7px; font-size: 12px; padding: 5px 8px;
+    cursor: pointer; color: var(--text-muted); white-space: nowrap;
+  }
+  .log-action-btn:hover { background: var(--border); color: var(--text); }
+  .log-action-btn.del:hover { color: #ef4444; border-color: #ef4444; background: #fef2f2; }
+
+  .log-edit-form {
+    border-top: 1px solid var(--border); padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 8px; background: var(--bg);
+  }
+  .log-edit-form input, .log-edit-form textarea {
+    width: 100%; box-sizing: border-box; padding: 8px 10px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 13px; background: var(--card); color: var(--text); font-family: inherit;
+    resize: vertical;
+  }
+  .log-edit-form input:focus, .log-edit-form textarea:focus { outline: none; border-color: var(--primary); }
+  .log-edit-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .log-edit-save {
+    background: var(--primary); color: white; border: none;
+    border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .log-edit-cancel {
+    background: none; border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer; color: var(--text-muted);
+  }
+  .logs-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 14px; }
+
+  /* 露出タブ内の簡易ログにSS/F/ISO追加 */
+  .meter-log-params { font-size: 11px; color: var(--primary); margin-top: 2px; font-weight: 600; }
+  .meter-log-location { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>📷 焦点距離 Pro</h1>
+    <p>焦点距離 &amp; 被写界深度 計算ツール</p>
+    <div id="authBar" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+      <span id="authStatus" style="font-size:12px;color:var(--text-muted);">読み込み中...</span>
+      <button id="authBtn" class="save-btn" style="padding:6px 14px;font-size:12px;width:auto;">ログイン</button>
+      <button id="logoutBtn" class="save-btn" style="padding:6px 14px;font-size:12px;width:auto;background:#64748b;display:none;">ログアウト</button>
+    </div>
+  </header>
+
+  <!-- 認証モーダル -->
+  <div class="modal-overlay" id="authModal" style="display:none;">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 id="authModalTitle" style="font-size:16px;font-weight:700;">ログイン</h3>
+        <button id="authModalClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);">×</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">メールアドレス</label>
+        <input type="email" id="authEmail" placeholder="例: mail@example.com"
+          style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">パスワード</label>
+        <input type="password" id="authPassword" placeholder="8文字以上"
+          style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+      </div>
+      <div id="authError" style="display:none;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626;margin-bottom:12px;"></div>
+      <button id="authSubmitBtn" class="save-btn" style="margin-bottom:10px;">ログイン</button>
+      <button id="authToggleBtn" style="width:100%;background:none;border:none;font-size:13px;color:var(--primary);cursor:pointer;text-decoration:underline;">
+        アカウントを作成する
+      </button>
+    </div>
+  </div>
+
+  <!-- Camera Selector -->
+  <div class="card">
+    <div class="step-header">
+      <span class="step-num">1</span>
+      <span class="step-title">カメラを選ぶ</span>
+    </div>
+    <select id="camera">
+      <optgroup label="フルサイズ（35mm判）">
+        <option value="ff">フルサイズ（汎用）</option>
+        <option value="sony_a7iv">Sony α7 IV</option>
+        <option value="sony_a7c2">Sony α7C II</option>
+        <option value="sony_a7rv">Sony α7R V</option>
+        <option value="sony_a9iii">Sony α9 III</option>
+        <option value="sony_a1">Sony α1 II</option>
+        <option value="canon_r6">Canon EOS R6 Mark II</option>
+        <option value="canon_r5ii">Canon EOS R5 Mark II</option>
+        <option value="canon_r3">Canon EOS R3</option>
+        <option value="nikon_z6iii">Nikon Z6 III</option>
+        <option value="nikon_z8">Nikon Z8</option>
+        <option value="nikon_z9">Nikon Z9</option>
+        <option value="leica_m11">Leica M11</option>
+        <option value="sigma_fp">Sigma fp L</option>
+        <option value="fuji_gfx">Fujifilm GFX100S II（中判）</option>
+        <option value="fuji_gfx50">Fujifilm GFX50S II（中判）</option>
+      </optgroup>
+      <optgroup label="APS-C（1.5x）">
+        <option value="apsc_s">APS-C Sony/Nikon（汎用）</option>
+        <option value="sony_a6700">Sony α6700</option>
+        <option value="sony_zve10ii">Sony ZV-E10 II</option>
+        <option value="fuji_xt5">Fujifilm X-T5</option>
+        <option value="fuji_xh2">Fujifilm X-H2</option>
+        <option value="fuji_xs20">Fujifilm X-S20</option>
+        <option value="nikon_zfc">Nikon Zfc</option>
+        <option value="nikon_z50ii">Nikon Z50 II</option>
+        <option value="nikon_z30">Nikon Z30</option>
+        <option value="ricoh_gr3x">Ricoh GR IIIx（APS-C）</option>
+      </optgroup>
+      <optgroup label="APS-C Canon（1.6x）">
+        <option value="apsc_c">APS-C Canon（汎用）</option>
+        <option value="canon_r10">Canon EOS R10</option>
+        <option value="canon_r50">Canon EOS R50</option>
+        <option value="canon_r7">Canon EOS R7</option>
+      </optgroup>
+      <optgroup label="マイクロフォーサーズ（2x）">
+        <option value="mft">マイクロフォーサーズ（汎用）</option>
+        <option value="om5">OM System OM-5</option>
+        <option value="om1ii">OM System OM-1 Mark II</option>
+        <option value="gx9">Panasonic G9 II</option>
+        <option value="gx7iii">Panasonic GX7 Mark III</option>
+        <option value="s9">Panasonic Lumix S9（フルサイズ）</option>
+      </optgroup>
+      <optgroup label="1インチ（2.7x）">
+        <option value="inch1">1インチ（汎用）</option>
+        <option value="rx100">Sony RX100 VII</option>
+        <option value="zv1ii">Sony ZV-1 II</option>
+        <option value="zv1m2">Sony ZV-1M2</option>
+      </optgroup>
+    </select>
+    <div class="sensor-badge" id="sensorBadge">36 × 24 mm ／ フルサイズ（35mm判）</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="focal">📏 焦点距離</button>
+    <button class="tab-btn" data-tab="dof">🎯 被写界深度</button>
+    <button class="tab-btn" data-tab="zoom">🔄 ズーム換算</button>
+    <button class="tab-btn" data-tab="exposure">⚡ 露出 & 測光</button>
+    <button class="tab-btn" data-tab="logs">📸 記録</button>
+  </div>
+
+  <!-- Tab: Focal Length -->
+  <div id="tab-focal" class="tab-content active">
+    <div class="card">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <span class="step-title">撮影条件を設定する</span>
+      </div>
+      <div class="control-row">
+        <div class="control-header">
+          <span class="control-label">撮影距離</span>
+          <span class="control-value" id="dVal">2.0 m</span>
+        </div>
+        <input type="range" id="distance" min="0.5" max="50" step="0.5" value="2">
+        <div style="margin-top:8px;" class="focal-input-wrap">
+          <input type="number" id="distanceInput" min="0.5" max="50" step="0.1" value="2" placeholder="距離">
+          <span class="focal-input-unit">m</span>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="control-header">
+          <span class="control-label">被写体の身長</span>
+          <span class="control-value" id="hVal">170 cm</span>
+        </div>
+        <input type="range" id="height" min="140" max="190" value="170">
+      </div>
+      <div class="control-row">
+        <div class="control-header">
+          <span class="control-label">構図</span>
+        </div>
+        <div class="frame-with-preview">
+          <div class="frame-grid" id="frameGrid">
+            <button class="frame-btn" data-frame="face">
+              <span class="frame-icon">😊</span>
+              <span class="frame-label">顔アップ</span>
+            </button>
+            <button class="frame-btn active" data-frame="bust">
+              <span class="frame-icon">👤</span>
+              <span class="frame-label">バスト</span>
+            </button>
+            <button class="frame-btn" data-frame="waist">
+              <span class="frame-icon">🧍</span>
+              <span class="frame-label">ウエスト</span>
+            </button>
+            <button class="frame-btn" data-frame="full">
+              <span class="frame-icon">🏃</span>
+              <span class="frame-label">全身</span>
+            </button>
+          </div>
+          <div class="frame-preview-area">
+            <svg id="framingPreview" viewBox="0 0 50 110" width="46" height="100" style="display:block;">
+              <!-- Person silhouette -->
+              <circle cx="25" cy="11" r="9" fill="#94a3b8"/>
+              <rect x="20" y="19" width="10" height="5" rx="1" fill="#94a3b8"/>
+              <ellipse cx="25" cy="29" rx="14" ry="6" fill="#94a3b8"/>
+              <rect x="13" y="25" width="24" height="32" rx="3" fill="#94a3b8"/>
+              <rect x="4"  cy="27" x="4"  y="27" width="8"  height="22" rx="3" fill="#94a3b8"/>
+              <rect x="38" y="27" width="8"  height="22" rx="3" fill="#94a3b8"/>
+              <rect x="13" y="57" width="10" height="32" rx="3" fill="#94a3b8"/>
+              <rect x="27" y="57" width="10" height="32" rx="3" fill="#94a3b8"/>
+              <rect x="13" y="89" width="10" height="10" rx="2" fill="#94a3b8"/>
+              <rect x="27" y="89" width="10" height="10" rx="2" fill="#94a3b8"/>
+              <!-- Dim overlay (out of frame area) -->
+              <rect id="frameDimBottom" x="0" y="62" width="50" height="48" fill="rgba(100,116,139,0.65)" rx="0"/>
+              <!-- Viewfinder border -->
+              <rect id="frameBox" x="1" y="1" width="48" height="61" fill="none" stroke="#2563eb" stroke-width="2.5" rx="3"/>
+            </svg>
+            <div id="frameName" class="frame-preview-name">バストアップ</div>
+          </div>
+        </div>
+      </div>
+      <div class="control-row" style="margin-bottom:0;">
+        <div class="control-header">
+          <span class="control-label">カメラの向き</span>
+        </div>
+        <select id="orientation">
+          <option value="portrait">縦構図（ポートレート）</option>
+          <option value="landscape">横構図（ランドスケープ）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="step-header" style="margin-top:4px; margin-bottom:8px;">
+      <span class="step-num">3</span>
+      <span class="step-title">必要なレンズ</span>
+    </div>
+    <div class="result-box">
+      <div class="result-main" id="focalOut">-- mm</div>
+      <div class="result-exact" id="focalCalc">計算値: --</div>
+      <div id="focalEquiv"></div>
+      <div class="focal-range-desc" id="focalRangeDesc"></div>
+    </div>
+    <div id="focalWarn"></div>
+    <div id="lensRecommend"></div>
+    <button class="save-btn" id="saveFocalBtn">このレンズを保存</button>
+  </div>
+
+  <!-- Tab: DoF -->
+  <div id="tab-dof" class="tab-content">
+    <div class="card">
+      <div class="control-row">
+        <div class="control-header">
+          <span class="control-label">焦点距離</span>
+          <span class="control-value" id="dofFocalVal">50 mm</span>
+        </div>
+        <input type="range" id="dofFocal" min="14" max="300" step="1" value="50">
+      </div>
+      <div class="control-row">
+        <div class="control-header">
+          <span class="control-label">撮影距離</span>
+          <span class="control-value" id="dofDistVal">2.0 m</span>
+        </div>
+        <input type="range" id="dofDist" min="0.3" max="30" step="0.1" value="2">
+      </div>
+      <div class="control-row">
+        <div class="control-header">
+          <span class="control-label">絞り（F値）</span>
+          <span class="control-value" id="dofApertureLabel">f/4</span>
+        </div>
+        <div class="aperture-presets" id="aperturePresets">
+          <button class="ap-btn" data-f="1.4">f/1.4</button>
+          <button class="ap-btn" data-f="1.8">f/1.8</button>
+          <button class="ap-btn" data-f="2.8">f/2.8</button>
+          <button class="ap-btn active" data-f="4">f/4</button>
+          <button class="ap-btn" data-f="5.6">f/5.6</button>
+          <button class="ap-btn" data-f="8">f/8</button>
+          <button class="ap-btn" data-f="11">f/11</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dof-grid">
+      <div class="dof-item">
+        <div class="dof-label">手前ピント限界<span class="term-hint">ピントが合う最も近い距離</span></div>
+        <div class="dof-value" id="dofNear">--</div>
+      </div>
+      <div class="dof-item">
+        <div class="dof-label">奥ピント限界<span class="term-hint">ピントが合う最も遠い距離</span></div>
+        <div class="dof-value" id="dofFar">--</div>
+      </div>
+      <div class="dof-item full">
+        <div class="dof-label">被写界深度（DoF）<span class="term-hint">ピントが合う距離の範囲（大きいほど広い）</span></div>
+        <div class="dof-value green" id="dofTotal">--</div>
+      </div>
+    </div>
+    <!-- DoF visualization bar -->
+    <div class="dof-vis-wrap">
+      <div class="dof-vis-title">📐 ピント範囲の可視化</div>
+      <div class="dof-vis-bar-area">
+        <span class="dof-vis-cam">📷</span>
+        <div class="dof-vis-bar-inner">
+          <div class="dof-vis-track"></div>
+          <div class="dof-vis-zone" id="dofVisZone" style="left:30%;width:40%;"></div>
+          <div class="dof-vis-subject" id="dofVisSubject" style="left:50%;"></div>
+          <span class="dof-vis-near-lbl" id="dofVisNearLbl" style="left:30%;">近</span>
+          <span class="dof-vis-far-lbl"  id="dofVisFarLbl"  style="left:70%;">遠</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyperfocal-row">
+      <span>過焦点距離<span class="term-hint" style="display:inline; margin-left:4px; font-size:10px;">（これ以上の距離にピントを合わせると背景も全部合焦）</span></span>
+      <span id="hyperfocal">-- m</span>
+    </div>
+    <div class="boke-grid">
+      <div class="boke-item">
+        <div class="boke-label">前ボケ量<span class="term-hint">手前の背景がどれだけボケるか</span></div>
+        <div class="boke-value" id="bokeFront">--</div>
+      </div>
+      <div class="boke-item">
+        <div class="boke-label">後ボケ量<span class="term-hint">奥の背景がどれだけボケるか</span></div>
+        <div class="boke-value" id="bokeRear">--</div>
+      </div>
+    </div>
+    <!-- Bokeh circle visuals -->
+    <div class="boke-vis-wrap" id="bokeVisWrap">
+      <div class="boke-vis-item">
+        <div class="boke-circle" id="bokeFrontCircle" style="width:30px;height:30px;"></div>
+        <div class="boke-vis-label">前ボケ</div>
+      </div>
+      <div class="boke-vs-sep">vs</div>
+      <div class="boke-vis-item">
+        <div class="boke-circle" id="bokeRearCircle" style="width:30px;height:30px;"></div>
+        <div class="boke-vis-label">後ボケ</div>
+      </div>
+    </div>
+    <div class="hyperfocal-row" id="bokeNote" style="font-size:12px;"></div>
+  </div>
+
+  <!-- Tab: Zoom Conversion -->
+  <div id="tab-zoom" class="tab-content">
+    <div class="card">
+      <div class="section-label">レンズの焦点距離</div>
+      <div class="zoom-pair">
+        <div>
+          <div class="control-label" style="font-size:12px;margin-bottom:6px;">現在のカメラ（フォーマット）</div>
+          <select id="zoomFromCam">
+            <option value="36">フルサイズ（36mm）</option>
+            <option value="43.8">中判 GFX（43.8mm）</option>
+            <option value="23.5">APS-C Sony/Nikon（23.5mm）</option>
+            <option value="22.3">APS-C Canon（22.3mm）</option>
+            <option value="17.3">マイクロフォーサーズ（17.3mm）</option>
+            <option value="13.2">1インチ（13.2mm）</option>
+          </select>
+        </div>
+        <div class="zoom-arrow">→</div>
+        <div>
+          <div class="control-label" style="font-size:12px;margin-bottom:6px;">換算先のカメラ（フォーマット）</div>
+          <select id="zoomToCam">
+            <option value="36">フルサイズ（36mm）</option>
+            <option value="43.8">中判 GFX（43.8mm）</option>
+            <option value="23.5" selected>APS-C Sony/Nikon（23.5mm）</option>
+            <option value="22.3">APS-C Canon（22.3mm）</option>
+            <option value="17.3">マイクロフォーサーズ（17.3mm）</option>
+            <option value="13.2">1インチ（13.2mm）</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="control-header">
+          <span class="control-label">現在のレンズ焦点距離</span>
+          <span class="control-value" id="zoomFocalDisplay">50 mm</span>
+        </div>
+        <input type="range" id="zoomFocalSlider" min="10" max="600" step="1" value="50">
+        <div style="margin-top:8px;" class="focal-input-wrap">
+          <input type="number" id="zoomFocalInput" min="1" max="2000" value="50" placeholder="焦点距離">
+          <span class="focal-input-unit">mm</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zoom-result-box">
+      <div class="zoom-result-main" id="zoomResultMain">-- mm</div>
+      <div class="zoom-result-sub" id="zoomResultSub">換算後の焦点距離</div>
+    </div>
+
+    <div class="zoom-eq-row">
+      <span>クロップファクター比</span>
+      <span id="zoomCropRatio">--</span>
+    </div>
+    <div class="zoom-eq-row">
+      <span>35mm換算（現在のカメラ）</span>
+      <span id="zoomEqFrom">-- mm相当</span>
+    </div>
+    <div class="zoom-eq-row">
+      <span>35mm換算（換算先カメラ）</span>
+      <span id="zoomEqTo">-- mm相当</span>
+    </div>
+  </div>
+
+  <!-- Tab: 露出 & 測光（統合） -->
+  <div id="tab-exposure" class="tab-content">
+
+    <!-- ① カメラビューファインダー -->
+    <div class="card">
+      <div class="meter-viewfinder" id="meterViewfinder">
+        <video id="meterVideo" autoplay playsinline muted></video>
+        <canvas id="meterCanvas" style="display:none;"></canvas>
+        <div class="meter-overlay">
+          <div class="meter-spot-circle" id="meterSpotCircle"></div>
+        </div>
+        <div class="meter-ev-overlay">
+          EV <span id="meterEvOverlay">--</span>
+        </div>
+        <div class="meter-mode-bar">
+          <button class="meter-mode-btn active" data-mode="avg">📊 平均測光</button>
+          <button class="meter-mode-btn" data-mode="spot">🎯 スポット</button>
+          <button class="meter-mode-btn" data-mode="high">☀️ ハイライト</button>
+        </div>
+      </div>
+      <div class="meter-start-row">
+        <button class="save-btn" id="meterStartBtn" style="width:auto;padding:10px 20px;font-size:13px;flex-shrink:0;">📷 カメラを起動</button>
+        <div class="meter-status" id="meterStatus">カメラを起動すると<br>リアルタイムで露出値を測定します</div>
+      </div>
+    </div>
+
+    <!-- ② 測定EV + アナログ針 -->
+    <div class="meter-ev-card">
+      <div class="meter-ev-main">
+        <div class="meter-ev-number" id="meterEvNumber">--</div>
+        <div class="meter-ev-label">露出値 (EV100)</div>
+        <div class="meter-ev-scene" id="meterEvScene">カメラを起動してください</div>
+      </div>
+      <div class="meter-needle-gauge">
+        <div class="meter-needle-gauge-title">📐 アナログメーター</div>
+        <div class="meter-analog-wrap">
+          <svg class="meter-analog-arc" viewBox="0 0 280 80" preserveAspectRatio="xMidYMid meet">
+            <defs><clipPath id="arcClip"><rect x="0" y="0" width="280" height="80"/></clipPath></defs>
+            <path d="M 30,75 A 110,110 0 0,1 100,18" fill="none" stroke="#3b82f6" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+            <path d="M 100,18 A 110,110 0 0,1 180,18" fill="none" stroke="#22c55e" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+            <path d="M 180,18 A 110,110 0 0,1 250,75" fill="none" stroke="#ef4444" stroke-width="14" stroke-linecap="round" opacity="0.7"/>
+            <line x1="30"  y1="75" x2="36"  y2="69" stroke="white" stroke-width="1.5" opacity="0.5"/>
+            <line x1="65"  y1="35" x2="70"  y2="40" stroke="white" stroke-width="1.5" opacity="0.5"/>
+            <line x1="140" y1="8"  x2="140" y2="15" stroke="white" stroke-width="1.5" opacity="0.5"/>
+            <line x1="215" y1="35" x2="210" y2="40" stroke="white" stroke-width="1.5" opacity="0.5"/>
+            <line x1="250" y1="75" x2="244" y2="69" stroke="white" stroke-width="1.5" opacity="0.5"/>
+            <text x="14"  y="78" font-size="8" fill="rgba(255,255,255,0.6)" text-anchor="middle">EV 0</text>
+            <text x="140" y="6"  font-size="8" fill="rgba(255,255,255,0.6)" text-anchor="middle">EV 12</text>
+            <text x="266" y="78" font-size="8" fill="rgba(255,255,255,0.6)" text-anchor="middle">EV 18</text>
+            <text x="58"  y="72" font-size="7" fill="#93c5fd" text-anchor="middle">暗</text>
+            <text x="140" y="34" font-size="7" fill="#86efac" text-anchor="middle">適正</text>
+            <text x="222" y="72" font-size="7" fill="#fca5a5" text-anchor="middle">明</text>
+            <line id="meterNeedle" x1="140" y1="74" x2="30" y2="75"
+              stroke="white" stroke-width="2.5" stroke-linecap="round"
+              style="transform-origin: 140px 74px; transition: transform 0.4s cubic-bezier(.4,2,.6,1);"/>
+            <circle cx="140" cy="74" r="5" fill="white"/>
+            <circle cx="140" cy="74" r="2.5" fill="#1e293b"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 場所入力 + 記録ボタン -->
+    <div class="record-location-row">
+      <input type="text" id="meterLocation" placeholder="📍 撮影場所（任意）" maxlength="60">
+    </div>
+    <button id="meterRecordBtn" disabled style="
+      display:block;width:100%;padding:16px;margin-bottom:6px;
+      background:linear-gradient(135deg,#16a34a,#15803d);color:white;
+      border:none;border-radius:12px;font-size:17px;font-weight:800;
+      cursor:not-allowed;opacity:0.35;transition:opacity 0.2s,transform 0.1s;
+      box-shadow:0 4px 12px rgba(22,163,74,0.3);letter-spacing:0.5px;
+    ">📌 この露出を記録する</button>
+    <div id="meterSyncStatus" style="text-align:center;font-size:12px;color:var(--text-muted);min-height:18px;margin-bottom:8px;"></div>
+
+    <!-- ④ 記録一覧 -->
+    <div class="meter-log-wrap" id="meterLogWrap">
+      <div class="meter-log-header">
+        <span>📋 露出記録</span>
+        <button class="meter-log-clear" id="meterLogClear">全消去</button>
+      </div>
+      <div id="meterLogList">
+        <div class="meter-log-empty">カメラを起動して測定後、「記録する」を押してください</div>
+      </div>
+    </div>
+
+    <!-- ④ ヒストグラム -->
+    <div class="card">
+      <div class="section-label">輝度ヒストグラム</div>
+      <div class="histogram-wrap">
+        <canvas id="histogramCanvas"></canvas>
+      </div>
+      <div class="histogram-labels">
+        <span>暗 (シャドウ)</span>
+        <span>中間調</span>
+        <span>明 (ハイライト)</span>
+      </div>
+      <div class="histogram-alert" id="histogramAlert"></div>
+    </div>
+
+    <!-- ④ 露出設定スライダー -->
+    <div class="card">
+      <div class="section-label">露出の3要素（タップでロック→その値を固定して他を換算）</div>
+      <div class="exp-triangle">
+        <div class="exp-cell" id="expCellSS" data-param="ss">
+          <div class="exp-lock-icon" id="expLockSS"></div>
+          <div class="exp-cell-label">シャッター速度</div>
+          <div class="exp-cell-val" id="expValSS">1/125</div>
+        </div>
+        <div class="exp-cell" id="expCellISO" data-param="iso">
+          <div class="exp-lock-icon" id="expLockISO"></div>
+          <div class="exp-cell-label">ISO感度</div>
+          <div class="exp-cell-val" id="expValISO">ISO 400</div>
+        </div>
+        <div class="exp-cell" id="expCellF" data-param="f">
+          <div class="exp-lock-icon" id="expLockF"></div>
+          <div class="exp-cell-label">F値（絞り）</div>
+          <div class="exp-cell-val" id="expValF">f/4</div>
+        </div>
+      </div>
+      <p class="exp-hint">ロックしたパラメータを固定し、スライダーで他の値を変化させます</p>
+      <div class="exp-slider-section" id="expSliderSS">
+        <div class="exp-slider-label">
+          <span>シャッター速度</span>
+          <span id="expSSLabel">1/125</span>
+        </div>
+        <input type="range" id="expSSSlider" min="0" max="20" step="1" value="9">
+      </div>
+      <div class="exp-slider-section" id="expSliderISO">
+        <div class="exp-slider-label">
+          <span>ISO感度</span>
+          <span id="expISOLabel">ISO 400</span>
+        </div>
+        <input type="range" id="expISOSlider" min="0" max="12" step="1" value="4">
+      </div>
+      <div class="exp-slider-section" id="expSliderF">
+        <div class="exp-slider-label">
+          <span>F値（絞り）</span>
+          <span id="expFLabel">f/4</span>
+        </div>
+        <input type="range" id="expFSlider" min="0" max="9" step="1" value="5">
+      </div>
+    </div>
+
+    <div class="exp-result-row blue">
+      <span>露出値（EV）</span>
+      <span id="expEVVal">EV --</span>
+    </div>
+
+    <!-- ⑤ EVズレメーター（測定EV vs 設定EV） -->
+    <div class="ev-diff-wrap">
+      <div class="ev-diff-title">📐 露出ズレメーター（測定EV vs 設定EV）</div>
+      <div class="ev-diff-bar-wrap">
+        <div class="ev-diff-track"></div>
+        <div class="ev-diff-ok-zone"></div>
+        <div class="ev-diff-needle" id="evDiffNeedle"></div>
+      </div>
+      <div class="ev-diff-labels">
+        <span>-4EV<br>露出不足</span>
+        <span>-2EV</span>
+        <span>±0<br>適正</span>
+        <span>+2EV</span>
+        <span>+4EV<br>露出過多</span>
+      </div>
+      <div class="ev-diff-number" id="evDiffNumber">--</div>
+      <div class="ev-diff-verdict" id="evDiffVerdict">カメラを起動して測定してください</div>
+      <div class="correction-row" id="correctionRow"></div>
+    </div>
+
+    <!-- ⑥ 天気・シーン選択 -->
+    <div class="card">
+      <div class="step-header" style="margin-bottom:10px;">
+        <span class="step-num">🌤</span>
+        <span class="step-title">天気・撮影シーンを選ぶ</span>
+      </div>
+      <div class="weather-grid" id="weatherGrid"></div>
+      <div class="weather-desc" id="weatherDesc">シーンを選ぶと適正露出・白飛び・露出不足を自動判定します</div>
+    </div>
+
+    <!-- ⑦ EVゲージ + 判定 -->
+    <div class="ev-gauge-card">
+      <div class="ev-gauge-title">📊 露出レベルメーター</div>
+      <div class="ev-gauge-wrap">
+        <div class="ev-gauge-bg"></div>
+        <div class="ev-target-zone" id="evTargetZone"></div>
+        <div class="ev-needle" id="evNeedle" style="left:60%"></div>
+      </div>
+      <div class="ev-zone-labels">
+        <span>EV 0<br>暗室</span>
+        <span>EV 4<br>夜景</span>
+        <span>EV 8<br>室内</span>
+        <span>EV 12<br>曇り</span>
+        <span>EV 15<br>晴れ</span>
+        <span>EV 18<br>白飛</span>
+      </div>
+      <div class="ev-legend">
+        <span class="ev-current-badge" id="evCurrentBadge">EV --</span>
+        <span class="ev-target-badge"  id="evTargetBadge">シーン未選択</span>
+      </div>
+    </div>
+
+    <div class="verdict-box" id="verdictBox"></div>
+
+    <div class="card" id="recCard" style="display:none; margin-bottom:12px;">
+      <div class="section-label">⭐ このシーンの適正設定例</div>
+      <div class="rec-settings-list" id="recSettingsList"></div>
+    </div>
+
+    <!-- ⑧ 手ブレ限界 -->
+    <div class="card" style="margin-top:12px;">
+      <div class="section-label">手ブレ限界：焦点距離から計算</div>
+      <div class="control-row" style="margin-bottom:0;">
+        <div class="control-header">
+          <span class="control-label">使用レンズ焦点距離</span>
+          <span class="control-value" id="expHandheldFocalVal">50 mm</span>
+        </div>
+        <input type="range" id="expHandheldFocal" min="10" max="600" step="1" value="50">
+      </div>
+      <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="exp-result-row orange" style="flex:1; min-width:120px; margin-bottom:0;">
+          <span style="font-size:12px;">手ブレ限界SS</span>
+          <span id="expHandheldResult">1/50 s</span>
+        </div>
+        <div class="exp-result-row blue" style="flex:1; min-width:120px; margin-bottom:0;">
+          <span style="font-size:12px;">5段IS補正時</span>
+          <span id="expHandheldIS">1/1.5 s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑨ WB測定 -->
+    <div class="wb-card" id="wbCard">
+      <div class="section-label">🎨 ホワイトバランス（WB）測定</div>
+      <div class="wb-top-row">
+        <div class="wb-swatch-wrap">
+          <div class="wb-swatch" id="wbSwatch"></div>
+          <div class="wb-swatch-label" id="wbSwatchLabel">測定光源色</div>
+        </div>
+        <div class="wb-readout">
+          <div class="wb-kelvin" id="wbKelvin" style="color:#94a3b8;">--<span class="wb-kelvin-unit"> K</span></div>
+          <div class="wb-scene-name" id="wbSceneName">カメラを起動してください</div>
+          <div class="wb-tint" id="wbTintLabel"></div>
+        </div>
+      </div>
+      <div class="wb-cct-bar-wrap">
+        <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:5px;">
+          <span>暖色（低色温度）</span><span>CCT バー</span><span>寒色（高色温度）</span>
+        </div>
+        <div class="wb-cct-bar">
+          <div class="wb-cct-needle" id="wbCctNeedle" style="left:50%;"></div>
+        </div>
+        <div class="wb-cct-tick-labels">
+          <span>2000K<br>電球</span>
+          <span>3200K<br>ハロゲン</span>
+          <span>5500K<br>晴天</span>
+          <span>7500K<br>日陰</span>
+          <span>10000K<br>青空</span>
+        </div>
+      </div>
+      <div class="wb-tint-bar-wrap">
+        <div class="wb-tint-label-row">
+          <span style="color:#22c55e;">🟢 グリーン寄り</span>
+          <span style="color:#d946ef;">マゼンタ寄り 🔴</span>
+        </div>
+        <div class="wb-tint-bar">
+          <div class="wb-tint-needle" id="wbTintNeedle" style="left:50%;"></div>
+        </div>
+      </div>
+      <div class="wb-diff-row">
+        <span>R / G 比（1.0 = ニュートラル）</span>
+        <span id="wbRG">--</span>
+      </div>
+      <div class="wb-diff-row">
+        <span>B / G 比（1.0 = ニュートラル）</span>
+        <span id="wbBG">--</span>
+      </div>
+      <div class="section-label" style="margin-top:14px;">📷 カメラ設定の推奨プリセット</div>
+      <div class="wb-rec-grid" id="wbRecGrid">
+        <div style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:12px;padding:8px;">
+          測定中…
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑩ ケルビン手動設定 -->
+    <div class="kelvin-manual-card">
+      <div class="step-header" style="margin-bottom:12px;">
+        <span class="step-num">🎨</span>
+        <span class="step-title">ケルビン手動設定・比較</span>
+      </div>
+      <div class="kelvin-preview-row">
+        <div class="kelvin-swatch-large" id="kelvinManualSwatch"></div>
+        <div class="kelvin-readout-wrap">
+          <div class="kelvin-manual-val" id="kelvinManualVal">5200<span class="kelvin-manual-unit"> K</span></div>
+          <div class="kelvin-manual-scene" id="kelvinManualScene">☀️ 晴天の屋外（基準白色光）</div>
+        </div>
+      </div>
+      <div class="kelvin-slider-wrap">
+        <input type="range" id="kelvinSlider" min="2000" max="10000" step="50" value="5200">
+      </div>
+      <div class="kelvin-tick-labels">
+        <span>2000K<br>電球</span>
+        <span>3200K<br>ハロゲン</span>
+        <span>5500K<br>晴天</span>
+        <span>7500K<br>日陰</span>
+        <span>10000K<br>青空</span>
+      </div>
+      <div class="kelvin-input-row">
+        <label>直接入力</label>
+        <div style="position:relative;flex:1;">
+          <input type="number" id="kelvinNumberInput" class="kelvin-number-input"
+            min="2000" max="10000" step="50" value="5200">
+          <span class="kelvin-input-unit">K</span>
+        </div>
+      </div>
+      <div class="kelvin-preset-chips" id="kelvinPresetChips">
+        <button class="kelvin-chip" data-k="2850">💡 電球<br><span style="font-size:9px;">2850K</span></button>
+        <button class="kelvin-chip" data-k="3200">🔦 ハロゲン<br><span style="font-size:9px;">3200K</span></button>
+        <button class="kelvin-chip" data-k="4000">🔆 蛍光灯<br><span style="font-size:9px;">4000K</span></button>
+        <button class="kelvin-chip active" data-k="5200">☀️ 晴天<br><span style="font-size:9px;">5200K</span></button>
+        <button class="kelvin-chip" data-k="5500">⚡ 閃光<br><span style="font-size:9px;">5500K</span></button>
+        <button class="kelvin-chip" data-k="6500">☁️ 曇り<br><span style="font-size:9px;">6500K</span></button>
+        <button class="kelvin-chip" data-k="7500">🌿 日陰<br><span style="font-size:9px;">7500K</span></button>
+      </div>
+      <div id="kelvinCompareWrap" style="display:none;">
+        <div class="section-label" style="margin-bottom:8px;">📐 測定値 vs 設定値の比較</div>
+        <div class="wb-diff-compare">
+          <div class="wb-diff-swatch-col">
+            <div class="wb-diff-swatch" id="kelvinMeasuredSwatch"></div>
+            <div class="wb-diff-swatch-lbl">測定値</div>
+            <div class="wb-diff-swatch-k" id="kelvinMeasuredK">-- K</div>
+          </div>
+          <div class="wb-diff-vs">vs</div>
+          <div class="wb-diff-swatch-col">
+            <div class="wb-diff-swatch" id="kelvinManualSwatchSmall"></div>
+            <div class="wb-diff-swatch-lbl">設定値</div>
+            <div class="wb-diff-swatch-k" id="kelvinManualK">-- K</div>
+          </div>
+        </div>
+        <div class="wb-diff-result-box" id="kelvinDiffBox"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab: 記録（撮影メモ + レンズ保存 + 露出記録を統合） -->
+  <div id="tab-logs" class="tab-content">
+
+    <!-- 撮影メモ入力 -->
+    <div class="logs-section-title">📝 撮影メモ</div>
+    <div class="card">
+      <div class="memo-form" id="memoForm">
+        <div class="memo-field">
+          <label>タイトル（必須）</label>
+          <input type="text" id="memoTitle" placeholder="例: 夕方ポートレート設定" maxlength="40">
+        </div>
+        <div class="memo-form-row">
+          <div class="memo-field">
+            <label>カメラ</label>
+            <input type="text" id="memoCameraName" placeholder="例: α7 IV" maxlength="30">
+          </div>
+          <div class="memo-field">
+            <label>焦点距離</label>
+            <div class="focal-input-wrap">
+              <input type="number" id="memoFocal" min="1" max="2000" placeholder="85">
+              <span class="focal-input-unit">mm</span>
+            </div>
+          </div>
+        </div>
+        <div class="memo-form-row">
+          <div class="memo-field">
+            <label>F値</label>
+            <input type="text" id="memoFval" placeholder="例: f/1.8" maxlength="10">
+          </div>
+          <div class="memo-field">
+            <label>シャッター速度</label>
+            <input type="text" id="memoSS" placeholder="例: 1/250" maxlength="12">
+          </div>
+        </div>
+        <div class="memo-form-row">
+          <div class="memo-field">
+            <label>ISO</label>
+            <input type="text" id="memoISO" placeholder="例: 800" maxlength="8">
+          </div>
+          <div class="memo-field">
+            <label>撮影距離</label>
+            <input type="text" id="memoDist" placeholder="例: 3m" maxlength="12">
+          </div>
+        </div>
+        <div class="memo-field">
+          <label>構図・メモ</label>
+          <textarea id="memoNote" placeholder="例: バストアップ、逆光、ゴールデンアワー" maxlength="200"></textarea>
+        </div>
+      </div>
+      <button class="save-btn" id="saveMemoBtn">この設定を保存</button>
+    </div>
+    <div id="memoList"></div>
+
+    <!-- レンズ保存 -->
+    <div class="logs-section-title" style="margin-top:16px;">🔭 保存済みレンズ</div>
+    <div id="savedList"></div>
+
+    <!-- 露出記録 -->
+    <div class="logs-header" style="margin-top:16px;">
+      <span>📸 露出記録 &nbsp;<span id="logsTotalCount" style="font-weight:400;color:var(--text-muted);font-size:12px;"></span></span>
+      <button class="logs-clear-btn" id="logsAllClear">全消去</button>
+    </div>
+    <div id="logsTabList"></div>
+  </div>
+
+</div>
+
+<!-- Save Modal -->
+<div class="modal-overlay" id="saveModal" style="display:none;">
+  <div class="modal">
+    <h3>レンズを保存</h3>
+    <input type="text" id="lensNameInput" placeholder="例: 50mm f/1.8 単焦点" maxlength="40">
+    <div class="modal-actions">
+      <button id="modalCancel">キャンセル</button>
+      <button class="btn-primary" id="modalSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CAMERAS = {
+  ff:          { label: "36 × 24 mm ／ フルサイズ（35mm判）", w: 36.0, coc: 0.030, mount: "ff" },
+  sony_a7iv:   { label: "35.9 × 23.9 mm ／ フルサイズ Sony α7 IV", w: 35.9, coc: 0.030, mount: "sony_e_ff" },
+  sony_a7c2:   { label: "35.9 × 23.9 mm ／ フルサイズ Sony α7C II", w: 35.9, coc: 0.030, mount: "sony_e_ff" },
+  sony_a7rv:   { label: "35.9 × 24.0 mm ／ フルサイズ Sony α7R V 61MP", w: 35.9, coc: 0.030, mount: "sony_e_ff" },
+  sony_a9iii:  { label: "35.6 × 23.8 mm ／ フルサイズ Sony α9 III", w: 35.6, coc: 0.030, mount: "sony_e_ff" },
+  sony_a1:     { label: "35.9 × 24.0 mm ／ フルサイズ Sony α1 II 50MP", w: 35.9, coc: 0.030, mount: "sony_e_ff" },
+  canon_r6:    { label: "35.9 × 23.9 mm ／ フルサイズ Canon EOS R6 Mark II", w: 35.9, coc: 0.030, mount: "canon_rf" },
+  canon_r5ii:  { label: "36.0 × 24.0 mm ／ フルサイズ Canon EOS R5 Mark II 45MP", w: 36.0, coc: 0.030, mount: "canon_rf" },
+  canon_r3:    { label: "36.0 × 24.0 mm ／ フルサイズ Canon EOS R3", w: 36.0, coc: 0.030, mount: "canon_rf" },
+  nikon_z6iii: { label: "35.9 × 23.9 mm ／ フルサイズ Nikon Z6 III", w: 35.9, coc: 0.030, mount: "nikon_z_ff" },
+  nikon_z8:    { label: "35.9 × 23.9 mm ／ フルサイズ Nikon Z8 45.7MP", w: 35.9, coc: 0.030, mount: "nikon_z_ff" },
+  nikon_z9:    { label: "35.9 × 23.9 mm ／ フルサイズ Nikon Z9", w: 35.9, coc: 0.030, mount: "nikon_z_ff" },
+  leica_m11:   { label: "36.0 × 24.0 mm ／ フルサイズ Leica M11 60MP", w: 36.0, coc: 0.030, mount: "leica_m" },
+  sigma_fp:    { label: "35.9 × 23.9 mm ／ フルサイズ Sigma fp L 61MP", w: 35.9, coc: 0.030, mount: "leica_l" },
+  fuji_gfx:    { label: "43.8 × 32.9 mm ／ 中判（0.79x）Fujifilm GFX100S II", w: 43.8, coc: 0.043, mount: "fuji_gfx" },
+  fuji_gfx50:  { label: "43.8 × 32.9 mm ／ 中判（0.79x）Fujifilm GFX50S II", w: 43.8, coc: 0.043, mount: "fuji_gfx" },
+  apsc_s:      { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Sony/Nikon汎用", w: 23.5, coc: 0.020, mount: "apsc_generic" },
+  sony_a6700:  { label: "23.5 × 15.7 mm ／ APS-C（1.5x）Sony α6700", w: 23.5, coc: 0.020, mount: "sony_e_apsc" },
+  sony_zve10ii:{ label: "23.5 × 15.6 mm ／ APS-C（1.5x）Sony ZV-E10 II", w: 23.5, coc: 0.020, mount: "sony_e_apsc" },
+  fuji_xt5:    { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Fujifilm X-T5 40MP", w: 23.5, coc: 0.020, mount: "fuji_x" },
+  fuji_xh2:    { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Fujifilm X-H2 40MP", w: 23.5, coc: 0.020, mount: "fuji_x" },
+  fuji_xs20:   { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Fujifilm X-S20 26MP", w: 23.5, coc: 0.020, mount: "fuji_x" },
+  nikon_zfc:   { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Nikon Zfc", w: 23.5, coc: 0.020, mount: "nikon_z_apsc" },
+  nikon_z50ii: { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Nikon Z50 II 21MP", w: 23.5, coc: 0.020, mount: "nikon_z_apsc" },
+  nikon_z30:   { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Nikon Z30 21MP", w: 23.5, coc: 0.020, mount: "nikon_z_apsc" },
+  ricoh_gr3x:  { label: "23.5 × 15.6 mm ／ APS-C（1.5x）Ricoh GR IIIx 固定40mm", w: 23.5, coc: 0.020, mount: "apsc_generic" },
+  apsc_c:      { label: "22.3 × 14.9 mm ／ APS-C Canon（1.6x）汎用", w: 22.3, coc: 0.019, mount: "canon_rf_apsc" },
+  canon_r10:   { label: "22.3 × 14.9 mm ／ APS-C Canon（1.6x）EOS R10", w: 22.3, coc: 0.019, mount: "canon_rf_apsc" },
+  canon_r50:   { label: "22.3 × 14.9 mm ／ APS-C Canon（1.6x）EOS R50", w: 22.3, coc: 0.019, mount: "canon_rf_apsc" },
+  canon_r7:    { label: "22.3 × 14.9 mm ／ APS-C Canon（1.6x）EOS R7 32.5MP", w: 22.3, coc: 0.019, mount: "canon_rf_apsc" },
+  mft:         { label: "17.3 × 13.0 mm ／ マイクロフォーサーズ（2x）汎用", w: 17.3, coc: 0.015, mount: "mft" },
+  om5:         { label: "17.3 × 13.0 mm ／ マイクロフォーサーズ（2x）OM System OM-5", w: 17.3, coc: 0.015, mount: "mft" },
+  om1ii:       { label: "17.3 × 13.0 mm ／ マイクロフォーサーズ（2x）OM System OM-1 Mark II", w: 17.3, coc: 0.015, mount: "mft" },
+  gx9:         { label: "17.3 × 13.0 mm ／ マイクロフォーサーズ（2x）Panasonic G9 II", w: 17.3, coc: 0.015, mount: "mft" },
+  gx7iii:      { label: "17.3 × 13.0 mm ／ マイクロフォーサーズ（2x）Panasonic GX7 Mark III", w: 17.3, coc: 0.015, mount: "mft" },
+  s9:          { label: "35.6 × 23.8 mm ／ フルサイズ Panasonic Lumix S9", w: 35.6, coc: 0.030, mount: "leica_l" },
+  inch1:       { label: "13.2 × 8.8 mm ／ 1インチ（2.7x）汎用", w: 13.2, coc: 0.011, mount: "inch1" },
+  rx100:       { label: "13.2 × 8.8 mm ／ 1インチ（2.7x）Sony RX100 VII", w: 13.2, coc: 0.011, mount: "inch1" },
+  zv1ii:       { label: "13.2 × 8.8 mm ／ 1インチ（2.7x）Sony ZV-1 II", w: 13.2, coc: 0.011, mount: "inch1" },
+  zv1m2:       { label: "13.2 × 8.8 mm ／ 1インチ（2.7x）Sony ZV-1M2", w: 13.2, coc: 0.011, mount: "inch1" },
+};
+
+// ---- Recommended Lens DB ----
+// mount -> [ { focal, fMin, name, maker, note } ]
+const LENS_DB = {
+  sony_e_ff: [
+    { focal: 14,  fMin: 1.8,  name: "FE 14mm F1.8 GM",               maker: "Sony",        note: "超広角単焦点" },
+    { focal: 20,  fMin: 1.8,  name: "FE 20mm F1.8 G",                maker: "Sony",        note: "広角単焦点" },
+    { focal: 24,  fMin: 1.4,  name: "FE 24mm F1.4 GM",               maker: "Sony",        note: "広角大口径" },
+    { focal: 24,  fMin: 2.8,  name: "FE 24mm F2.8 G",                maker: "Sony",        note: "コンパクト広角" },
+    { focal: 35,  fMin: 1.4,  name: "FE 35mm F1.4 GM",               maker: "Sony",        note: "広角大口径" },
+    { focal: 35,  fMin: 1.8,  name: "FE 35mm F1.8",                  maker: "Sony",        note: "コンパクト標準" },
+    { focal: 50,  fMin: 1.2,  name: "FE 50mm F1.2 GM",               maker: "Sony",        note: "大口径標準" },
+    { focal: 50,  fMin: 1.4,  name: "FE 50mm F1.4 GM",               maker: "Sony",        note: "標準単焦点" },
+    { focal: 50,  fMin: 1.8,  name: "FE 50mm F1.8",                  maker: "Sony",        note: "コスパ標準" },
+    { focal: 85,  fMin: 1.4,  name: "FE 85mm F1.4 GM II",            maker: "Sony",        note: "ポートレート定番" },
+    { focal: 85,  fMin: 1.8,  name: "FE 85mm F1.8",                  maker: "Sony",        note: "軽量ポートレート" },
+    { focal: 85,  fMin: 1.4,  name: "85mm F1.4 DG DN Art",           maker: "Sigma",       note: "高解像ポートレート" },
+    { focal: 85,  fMin: 1.8,  name: "SP 85mm F/1.8 Di III",          maker: "Tamron",      note: "コスパ中望遠" },
+    { focal: 100, fMin: 2.8,  name: "FE 90mm F2.8 Macro G OSS",      maker: "Sony",        note: "マクロ兼用" },
+    { focal: 135, fMin: 1.8,  name: "FE 135mm F1.8 GM",              maker: "Sony",        note: "望遠ポートレート" },
+    { focal: 135, fMin: 1.8,  name: "135mm F1.8 DG DN Art",          maker: "Sigma",       note: "高解像望遠" },
+    { focal: 200, fMin: 2.8,  name: "FE 70-200mm F2.8 GM OSS II",    maker: "Sony",        note: "望遠ズーム" },
+    { focal: 300, fMin: 2.8,  name: "FE 300mm F2.8 GM OSS",          maker: "Sony",        note: "超望遠単焦点" },
+    { focal: 400, fMin: 2.8,  name: "FE 400mm F2.8 GM OSS",          maker: "Sony",        note: "超望遠単焦点" },
+    { focal: 400, fMin: 5.6,  name: "FE 100-400mm F4.5-5.6 GM OSS",  maker: "Sony",        note: "超望遠ズーム" },
+    { focal: 600, fMin: 4.0,  name: "FE 600mm F4 GM OSS",            maker: "Sony",        note: "野鳥・スポーツ" },
+    { focal: 35,  fMin: 2.8,  name: "28-75mm F/2.8 Di III VXD G2",   maker: "Tamron",      note: "標準ズーム" },
+    { focal: 400, fMin: 7.1,  name: "150-500mm F/5-6.7 Di III VC VXD",maker: "Tamron",     note: "超望遠ズーム" },
+  ],
+  canon_rf: [
+    { focal: 14,  fMin: 4.0,  name: "RF 14-35mm F4 L IS USM",        maker: "Canon",       note: "広角ズーム" },
+    { focal: 24,  fMin: 1.8,  name: "RF 24mm F1.8 MACRO IS STM",     maker: "Canon",       note: "広角単焦点" },
+    { focal: 35,  fMin: 1.8,  name: "RF 35mm F1.8 MACRO IS STM",     maker: "Canon",       note: "標準単焦点" },
+    { focal: 50,  fMin: 1.2,  name: "RF 50mm F1.2 L USM",            maker: "Canon",       note: "大口径標準" },
+    { focal: 50,  fMin: 1.8,  name: "RF 50mm F1.8 STM",              maker: "Canon",       note: "コスパ標準" },
+    { focal: 85,  fMin: 1.2,  name: "RF 85mm F1.2 L USM DS",         maker: "Canon",       note: "ポートレート最高峰" },
+    { focal: 85,  fMin: 2.0,  name: "RF 85mm F2 MACRO IS STM",       maker: "Canon",       note: "軽量ポートレート" },
+    { focal: 100, fMin: 2.8,  name: "RF 100mm F2.8 L MACRO IS USM",  maker: "Canon",       note: "マクロ兼用" },
+    { focal: 135, fMin: 1.8,  name: "135mm F1.8 DG DN Art",          maker: "Sigma",       note: "高解像望遠" },
+    { focal: 200, fMin: 2.8,  name: "RF 70-200mm F2.8 L IS USM Z",   maker: "Canon",       note: "望遠ズーム" },
+    { focal: 400, fMin: 2.8,  name: "RF 400mm F2.8 L IS USM",        maker: "Canon",       note: "超望遠単焦点" },
+    { focal: 500, fMin: 7.1,  name: "RF 100-500mm F4.5-7.1 L IS USM",maker: "Canon",       note: "超望遠ズーム" },
+    { focal: 600, fMin: 4.0,  name: "RF 600mm F4 L IS USM",          maker: "Canon",       note: "野鳥・スポーツ" },
+    { focal: 50,  fMin: 2.0,  name: "RF 28-70mm F2 L USM",           maker: "Canon",       note: "標準ズーム大口径" },
+  ],
+  nikon_z_ff: [
+    { focal: 20,  fMin: 1.8,  name: "NIKKOR Z 20mm f/1.8 S",         maker: "Nikon",       note: "広角単焦点" },
+    { focal: 24,  fMin: 1.8,  name: "NIKKOR Z 24mm f/1.8 S",         maker: "Nikon",       note: "広角単焦点" },
+    { focal: 35,  fMin: 1.8,  name: "NIKKOR Z 35mm f/1.8 S",         maker: "Nikon",       note: "標準単焦点" },
+    { focal: 50,  fMin: 1.2,  name: "NIKKOR Z 50mm f/1.2 S",         maker: "Nikon",       note: "大口径標準" },
+    { focal: 50,  fMin: 1.8,  name: "NIKKOR Z 50mm f/1.8 S",         maker: "Nikon",       note: "標準単焦点" },
+    { focal: 85,  fMin: 1.2,  name: "NIKKOR Z 85mm f/1.2 S",         maker: "Nikon",       note: "ポートレート最高峰" },
+    { focal: 85,  fMin: 1.8,  name: "NIKKOR Z 85mm f/1.8 S",         maker: "Nikon",       note: "ポートレート定番" },
+    { focal: 85,  fMin: 1.4,  name: "85mm F1.4 DG DN Art",           maker: "Sigma",       note: "高解像ポートレート" },
+    { focal: 100, fMin: 2.8,  name: "MC NIKKOR Z 105mm f/2.8 VR S",  maker: "Nikon",       note: "マクロ兼用" },
+    { focal: 135, fMin: 1.8,  name: "135mm F1.8 DG DN Art",          maker: "Sigma",       note: "高解像望遠" },
+    { focal: 200, fMin: 2.8,  name: "NIKKOR Z 70-200mm f/2.8 VR S",  maker: "Nikon",       note: "望遠ズーム" },
+    { focal: 400, fMin: 2.8,  name: "NIKKOR Z 400mm f/2.8 TC VR S",  maker: "Nikon",       note: "超望遠単焦点" },
+    { focal: 400, fMin: 5.6,  name: "NIKKOR Z 100-400mm f/4.5-5.6 VR S", maker: "Nikon",   note: "超望遠ズーム" },
+    { focal: 600, fMin: 4.0,  name: "NIKKOR Z 600mm f/4 TC VR S",    maker: "Nikon",       note: "野鳥・スポーツ" },
+  ],
+  leica_m: [
+    { focal: 28,  fMin: 2.8,  name: "Summicron-M 28mm f/2 ASPH",     maker: "Leica",       note: "広角単焦点" },
+    { focal: 35,  fMin: 1.4,  name: "Summilux-M 35mm f/1.4 ASPH",    maker: "Leica",       note: "広角大口径" },
+    { focal: 50,  fMin: 0.95, name: "Noctilux-M 50mm f/0.95 ASPH",   maker: "Leica",       note: "超大口径標準" },
+    { focal: 50,  fMin: 2.0,  name: "Summicron-M 50mm f/2",          maker: "Leica",       note: "コンパクト標準" },
+    { focal: 75,  fMin: 1.25, name: "Noctilux-M 75mm f/1.25 ASPH",   maker: "Leica",       note: "大口径中望遠" },
+    { focal: 85,  fMin: 3.5,  name: "APO-LANTHAR 90mm F3.5",         maker: "Voigtländer", note: "コンパクト中望遠" },
+  ],
+  leica_l: [
+    { focal: 24,  fMin: 2.8,  name: "17-35mm F2.8 DG DN Art",        maker: "Sigma",       note: "広角ズーム" },
+    { focal: 35,  fMin: 2.0,  name: "35mm F2 DG DN Contemporary",    maker: "Sigma",       note: "標準単焦点" },
+    { focal: 50,  fMin: 2.0,  name: "50mm F2 DG DN Contemporary",    maker: "Sigma",       note: "標準単焦点" },
+    { focal: 85,  fMin: 1.4,  name: "85mm F1.4 DG DN Art",           maker: "Sigma",       note: "ポートレート" },
+    { focal: 85,  fMin: 1.8,  name: "SP 85mm F/1.8 Di III",          maker: "Tamron",      note: "コスパ中望遠" },
+    { focal: 135, fMin: 1.8,  name: "135mm F1.8 DG DN Art",          maker: "Sigma",       note: "高解像望遠" },
+  ],
+  fuji_gfx: [
+    { focal: 23,  fMin: 4.0,  name: "GF 23mm F4 R LM WR",            maker: "Fujifilm",    note: "超広角単焦点" },
+    { focal: 35,  fMin: 4.5,  name: "GF 35-70mm F4.5-5.6 WR",        maker: "Fujifilm",    note: "標準ズーム" },
+    { focal: 50,  fMin: 3.5,  name: "GF 50mm F3.5 R LM WR",          maker: "Fujifilm",    note: "標準単焦点" },
+    { focal: 63,  fMin: 2.8,  name: "GF 63mm F2.8 R WR",             maker: "Fujifilm",    note: "標準ポートレート" },
+    { focal: 100, fMin: 2.0,  name: "GF 100mm F2 R LM WR",           maker: "Fujifilm",    note: "ポートレート最高峰" },
+    { focal: 120, fMin: 4.0,  name: "GF 120mm F4 Macro R LM OIS WR", maker: "Fujifilm",    note: "マクロ兼用" },
+  ],
+  sony_e_apsc: [
+    { focal: 15,  fMin: 1.4,  name: "E 15mm F1.4 G",                 maker: "Sony",        note: "超広角単焦点" },
+    { focal: 20,  fMin: 2.8,  name: "E 20mm F2.8",                   maker: "Sony",        note: "広角パンケーキ" },
+    { focal: 24,  fMin: 1.8,  name: "E 24mm F1.8 ZA",                maker: "Sony/Zeiss",  note: "広角単焦点" },
+    { focal: 35,  fMin: 1.8,  name: "E 35mm F1.8 OSS",               maker: "Sony",        note: "標準単焦点" },
+    { focal: 50,  fMin: 1.8,  name: "E 50mm F1.8 OSS",               maker: "Sony",        note: "中望遠単焦点" },
+    { focal: 56,  fMin: 1.4,  name: "56mm F1.4 DC DN Contemporary",  maker: "Sigma",       note: "APS-C中望遠" },
+    { focal: 30,  fMin: 1.4,  name: "30mm F1.4 DC DN Contemporary",  maker: "Sigma",       note: "APS-C標準" },
+    { focal: 18,  fMin: 2.8,  name: "18-50mm F/2.8 Di III-A VC VXD", maker: "Tamron",      note: "APS-C標準ズーム" },
+  ],
+  fuji_x: [
+    { focal: 14,  fMin: 2.8,  name: "XF 14mm F2.8 R",                maker: "Fujifilm",    note: "超広角単焦点" },
+    { focal: 16,  fMin: 1.4,  name: "XF 16mm F1.4 R WR",             maker: "Fujifilm",    note: "広角単焦点" },
+    { focal: 23,  fMin: 1.4,  name: "XF 23mm F1.4 R LM WR",          maker: "Fujifilm",    note: "広角単焦点" },
+    { focal: 35,  fMin: 1.4,  name: "XF 35mm F1.4 R",                maker: "Fujifilm",    note: "標準定番" },
+    { focal: 35,  fMin: 2.0,  name: "XF 35mm F2 R WR",               maker: "Fujifilm",    note: "コンパクト標準" },
+    { focal: 50,  fMin: 1.0,  name: "XF 50mm F1.0 R WR",             maker: "Fujifilm",    note: "超大口径中望遠" },
+    { focal: 56,  fMin: 1.2,  name: "XF 56mm F1.2 R WR",             maker: "Fujifilm",    note: "ポートレート定番" },
+    { focal: 90,  fMin: 2.0,  name: "XF 90mm F2 R LM WR",            maker: "Fujifilm",    note: "望遠ポートレート" },
+    { focal: 56,  fMin: 1.4,  name: "56mm F1.4 DC DN Contemporary",  maker: "Sigma",       note: "APS-C中望遠" },
+  ],
+  nikon_z_apsc: [
+    { focal: 16,  fMin: 1.8,  name: "NIKKOR Z DX 16mm f/1.8 S",      maker: "Nikon",       note: "超広角単焦点" },
+    { focal: 24,  fMin: 1.7,  name: "NIKKOR Z DX 24mm f/1.7",        maker: "Nikon",       note: "広角単焦点" },
+    { focal: 28,  fMin: 2.8,  name: "NIKKOR Z 28mm f/2.8",           maker: "Nikon",       note: "コンパクト標準" },
+    { focal: 40,  fMin: 2.0,  name: "NIKKOR Z 40mm f/2",             maker: "Nikon",       note: "標準単焦点" },
+    { focal: 50,  fMin: 1.8,  name: "NIKKOR Z 50mm f/1.8 S",         maker: "Nikon",       note: "中望遠単焦点" },
+    { focal: 56,  fMin: 1.4,  name: "56mm F1.4 DC DN Contemporary",  maker: "Sigma",       note: "APS-C中望遠" },
+    { focal: 85,  fMin: 1.8,  name: "NIKKOR Z 85mm f/1.8 S",         maker: "Nikon",       note: "ポートレート" },
+  ],
+  canon_rf_apsc: [
+    { focal: 14,  fMin: 4.5,  name: "RF-S 10-18mm F4.5-6.3 IS STM",  maker: "Canon",       note: "超広角ズーム" },
+    { focal: 24,  fMin: 1.8,  name: "RF 24mm F1.8 MACRO IS STM",     maker: "Canon",       note: "広角単焦点" },
+    { focal: 35,  fMin: 1.8,  name: "RF 35mm F1.8 MACRO IS STM",     maker: "Canon",       note: "標準単焦点" },
+    { focal: 50,  fMin: 1.8,  name: "RF 50mm F1.8 STM",              maker: "Canon",       note: "コスパ中望遠" },
+    { focal: 85,  fMin: 2.0,  name: "RF 85mm F2 MACRO IS STM",       maker: "Canon",       note: "ポートレート" },
+    { focal: 56,  fMin: 1.4,  name: "56mm F1.4 DC DN Contemporary",  maker: "Sigma",       note: "APS-C中望遠" },
+  ],
+  mft: [
+    { focal: 12,  fMin: 2.0,  name: "M.ZUIKO 12mm F2.0",             maker: "OM System",   note: "超広角単焦点" },
+    { focal: 17,  fMin: 1.2,  name: "M.ZUIKO 17mm F1.2 PRO",         maker: "OM System",   note: "広角単焦点" },
+    { focal: 25,  fMin: 1.2,  name: "M.ZUIKO 25mm F1.2 PRO",         maker: "OM System",   note: "標準単焦点" },
+    { focal: 42,  fMin: 1.2,  name: "M.ZUIKO 42.5mm F1.2 PRO",       maker: "OM System",   note: "ポートレート定番" },
+    { focal: 45,  fMin: 1.8,  name: "M.ZUIKO 45mm F1.8",             maker: "OM System",   note: "コスパポートレート" },
+    { focal: 60,  fMin: 2.8,  name: "M.ZUIKO 60mm F2.8 Macro",       maker: "OM System",   note: "マクロ兼用" },
+    { focal: 75,  fMin: 1.8,  name: "M.ZUIKO 75mm F1.8",             maker: "OM System",   note: "望遠ポートレート" },
+    { focal: 42,  fMin: 1.2,  name: "Leica DG Nocticron 42.5mm F1.2",maker: "Panasonic",   note: "パナ高級ポートレート" },
+    { focal: 25,  fMin: 1.4,  name: "Leica DG Summilux 25mm F1.4",   maker: "Panasonic",   note: "標準単焦点" },
+    { focal: 150, fMin: 4.0,  name: "M.ZUIKO 150-400mm F4.5 TC1.25x IS PRO", maker: "OM System", note: "超望遠ズーム（換算300-1000mm）" },
+    { focal: 300, fMin: 4.0,  name: "M.ZUIKO 300mm F4 IS PRO",       maker: "OM System",   note: "超望遠単焦点（換算600mm）" },
+    { focal: 100, fMin: 4.0,  name: "Leica DG 100-400mm F4-6.3",     maker: "Panasonic",   note: "超望遠ズーム（換算200-800mm）" },
+  ],
+  apsc_generic: [
+    { focal: 35,  fMin: 1.8,  name: "35mm F1.8 DC DN Contemporary",  maker: "Sigma",       note: "APS-C広角単焦点" },
+    { focal: 56,  fMin: 1.4,  name: "56mm F1.4 DC DN Contemporary",  maker: "Sigma",       note: "APS-C中望遠" },
+    { focal: 85,  fMin: 1.4,  name: "85mm F1.4 DG DN Art",           maker: "Sigma",       note: "ポートレート" },
+    { focal: 18,  fMin: 2.8,  name: "18-50mm F/2.8 Di III-A VC VXD", maker: "Tamron",      note: "APS-C標準ズーム" },
+  ],
+  ff: [
+    { focal: 35,  fMin: 1.8,  name: "35mm F1.8 DG DN Contemporary",  maker: "Sigma",       note: "広角単焦点" },
+    { focal: 50,  fMin: 1.4,  name: "50mm F1.4 DG DN Art",           maker: "Sigma",       note: "標準単焦点" },
+    { focal: 85,  fMin: 1.4,  name: "85mm F1.4 DG DN Art",           maker: "Sigma",       note: "ポートレート定番" },
+    { focal: 85,  fMin: 1.8,  name: "SP 85mm F/1.8 Di VC USD G2",    maker: "Tamron",      note: "コスパポートレート" },
+    { focal: 135, fMin: 1.8,  name: "135mm F1.8 DG HSM Art",         maker: "Sigma",       note: "望遠ポートレート" },
+  ],
+  inch1: [
+    { focal: 9,   fMin: 2.0,  name: "RX100 VII 内蔵 24-200mm相当",   maker: "Sony",        note: "コンパクトズーム" },
+    { focal: 18,  fMin: 1.8,  name: "ZV-1 II 内蔵 18-50mm相当",      maker: "Sony",        note: "Vlog向けズーム" },
+  ],
+};
+
+// ================================================================
+// 構図ごとの設定
+// ================================================================
+const FRAME_CONFIG = {
+  face:  { ratio: 0.13, corrV: 1.15, corrH: 1.05 },
+  bust:  { ratio: 0.35, corrV: 1.05, corrH: 1.00 },
+  waist: { ratio: 0.50, corrV: 1.02, corrH: 1.00 },
+  full:  { ratio: 1.00, corrV: 1.00, corrH: 1.00 },
+};
+
+const LENSES = [14, 20, 24, 28, 35, 50, 85, 100, 135, 200, 300, 400, 500, 600, 800];
+
+// ---- Framing preview: crop Y within SVG viewBox 0-110 ----
+const FRAME_CROP_Y = { face: 27, bust: 62, waist: 80, full: 110 };
+const FRAME_NAMES  = { face: '顔アップ', bust: 'バストアップ', waist: 'ウエストアップ', full: '全身' };
+
+function updateFramingPreview(frameKey) {
+  const cropY = FRAME_CROP_Y[frameKey] || 62;
+  const dimH  = 110 - cropY;
+  const dim   = document.getElementById('frameDimBottom');
+  const box   = document.getElementById('frameBox');
+  const lbl   = document.getElementById('frameName');
+  if (!dim || !box) return;
+  dim.setAttribute('y',      cropY);
+  dim.setAttribute('height', Math.max(0, dimH));
+  box.setAttribute('height', Math.max(0, cropY - 2));
+  if (lbl) lbl.textContent = FRAME_NAMES[frameKey] || '';
+}
+
+// Add h (short side) to all cameras for orientation support
+Object.values(CAMERAS).forEach(c => {
+  if (!c.h) c.h = c.w * (24 / 36); // approx short side if not set
+});
+// Fix known values
+const H_MAP = {
+  ff:36,sony_a7iv:35.9,sony_a7c2:35.9,sony_a7rv:35.9,sony_a9iii:35.6,sony_a1:35.9,
+  canon_r6:35.9,canon_r5ii:36.0,canon_r3:36.0,nikon_z6iii:35.9,nikon_z8:35.9,nikon_z9:35.9,
+  leica_m11:36.0,sigma_fp:35.9,fuji_gfx:43.8,fuji_gfx50:43.8,
+  apsc_s:23.5,sony_a6700:23.5,sony_zve10ii:23.5,fuji_xt5:23.5,fuji_xh2:23.5,fuji_xs20:23.5,
+  nikon_zfc:23.5,nikon_z50ii:23.5,nikon_z30:23.5,ricoh_gr3x:23.5,
+  apsc_c:22.3,canon_r10:22.3,canon_r50:22.3,canon_r7:22.3,
+  mft:17.3,om5:17.3,om1ii:17.3,gx9:17.3,gx7iii:17.3,s9:35.6,
+  inch1:13.2,rx100:13.2,zv1ii:13.2,zv1m2:13.2
+};
+const H_SHORT_MAP = {
+  ff:24,sony_a7iv:23.9,sony_a7c2:23.9,sony_a7rv:24.0,sony_a9iii:23.8,sony_a1:24.0,
+  canon_r6:23.9,canon_r5ii:24.0,canon_r3:24.0,nikon_z6iii:23.9,nikon_z8:23.9,nikon_z9:23.9,
+  leica_m11:24.0,sigma_fp:23.9,fuji_gfx:32.9,fuji_gfx50:32.9,
+  apsc_s:15.6,sony_a6700:15.7,sony_zve10ii:15.6,fuji_xt5:15.6,fuji_xh2:15.6,fuji_xs20:15.6,
+  nikon_zfc:15.6,nikon_z50ii:15.6,nikon_z30:15.6,ricoh_gr3x:15.6,
+  apsc_c:14.9,canon_r10:14.9,canon_r50:14.9,canon_r7:14.9,
+  mft:13.0,om5:13.0,om1ii:13.0,gx9:13.0,gx7iii:13.0,s9:23.8,
+  inch1:8.8,rx100:8.8,zv1ii:8.8,zv1m2:8.8
+};
+Object.keys(CAMERAS).forEach(k => {
+  if (H_MAP[k])       CAMERAS[k].w = H_MAP[k];
+  if (H_SHORT_MAP[k]) CAMERAS[k].h = H_SHORT_MAP[k];
+});
+
+let aperture     = 4;
+let pendingFocal = null;
+let currentFrame = "bust";
+
+function getCam() {
+  return CAMERAS[document.getElementById("camera").value] || CAMERAS["ff"];
+}
+
+function getCropFactor(cam) {
+  const diag35     = Math.sqrt(36 * 36 + 24 * 24);
+  const diagSensor = Math.sqrt(cam.w * cam.w + cam.h * cam.h);
+  return diag35 / diagSensor;
+}
+
+function fmtDist(mm) {
+  if (mm >= 10000) return (mm / 1000).toFixed(1) + " m";
+  if (mm >= 1000)  return (mm / 1000).toFixed(2) + " m";
+  if (mm >= 100)   return Math.round(mm) + " mm";
+  return mm.toFixed(1) + " mm";
+}
+
+// ---- Tabs ----
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-" + tab).classList.add("active");
+    if (tab === "logs")  { renderMemos(); renderSaved(); renderLogsTab(); }
+  });
+});
+
+// ---- Camera change ----
+document.getElementById("camera").addEventListener("change", () => {
+  const cam = getCam();
+  document.getElementById("sensorBadge").textContent = cam.label;
+  calcFocal();
+  calcDoF();
+});
+
+// ---- Focal length calc ----
+function calcFocal() {
+  const cam         = getCam();
+  const d           = parseFloat(document.getElementById("distance").value);
+  const h           = parseFloat(document.getElementById("height").value) / 100;
+  const frameKey    = currentFrame;
+  const orientation = document.getElementById("orientation").value;
+
+  // 入力値が不正な場合は計算しない
+  if (!isFinite(d) || d <= 0 || !isFinite(h) || h <= 0) return;
+
+  document.getElementById("dVal").textContent = d >= 10 ? Math.round(d * 10) / 10 + " m" : d.toFixed(1) + " m";
+  document.getElementById("hVal").textContent = Math.round(h * 100) + " cm";
+  // 数値入力欄を同期
+  const dInput = document.getElementById("distanceInput");
+  if (dInput && document.activeElement !== dInput) dInput.value = d;
+
+  const cfg      = FRAME_CONFIG[frameKey] || FRAME_CONFIG.bust;
+  const sensorH = orientation === "landscape" ? cam.h : cam.w;
+  const subjectH = h * cfg.ratio;
+  const corr     = orientation === "landscape" ? cfg.corrH : cfg.corrV;
+  const fCalc    = (sensorH * d / subjectH) * corr;
+
+  const closest = LENSES.reduce((a, b) => Math.abs(b - fCalc) < Math.abs(a - fCalc) ? b : a);
+  pendingFocal  = closest;
+
+  document.getElementById("focalOut").textContent  = closest + " mm";
+  document.getElementById("focalCalc").textContent = "計算値: " + fCalc.toFixed(1) + " mm";
+
+  const rangeDesc = fCalc < 24  ? "超広角域 — 風景・建築・集合写真向き"
+    : fCalc < 35  ? "広角域 — スナップ・環境ポートレート向き"
+    : fCalc < 55  ? "標準域 — 自然な遠近感、汎用的に使える"
+    : fCalc < 85  ? "中望遠域 — ポートレートに最適な焦点域"
+    : fCalc < 135 ? "望遠域 — 圧縮効果のある印象的なポートレート"
+    : fCalc < 300 ? "超望遠域 — スポーツ・野生動物・強い圧縮効果"
+    : fCalc < 600 ? "極超望遠域 — 野鳥・遠距離スポーツ。三脚必須"
+    : "超極望遠域 — 一般的なレンズの範囲を超えています";
+  document.getElementById("focalRangeDesc").textContent = rangeDesc;
+  updateFramingPreview(frameKey);
+
+  // 35mm equiv
+  const cf   = getCropFactor(cam);
+  const eqEl = document.getElementById("focalEquiv");
+  if (Math.abs(cf - 1.0) < 0.04) {
+    eqEl.innerHTML = "";
+  } else {
+    const eqv = fCalc * cf;
+    eqEl.innerHTML = `<span class="equiv-badge">35mm換算 約 ${eqv.toFixed(0)} mm</span>`;
+  }
+
+  // warning
+  const warn = document.getElementById("focalWarn");
+  if (fCalc > 800) {
+    warn.innerHTML = '<div class="warn-box">⚠ 計算値が800mmを超えています。この距離・構図の組み合わせは現実的なレンズで撮影困難です。距離を縮めるか、構図を変更してください。</div>';
+  } else if (fCalc > 400) {
+    warn.innerHTML = '<div class="warn-box">⚠ 400mm以上の超望遠域です。手持ち撮影は困難で、三脚・一脚が必須です。IS（手ブレ補正）付きレンズを推奨します。</div>';
+  } else if (fCalc > 300) {
+    warn.innerHTML = '<div class="warn-box">⚠ 300mm超の望遠域です。三脚または一脚の使用を強く推奨します。</div>';
+  } else if (closest <= 35) {
+    warn.innerHTML = '<div class="warn-box">⚠ 広角レンズのため、顔が歪んで太く見える可能性があります。ポートレートには50mm以上を推奨します。</div>';
+  } else {
+    warn.innerHTML = "";
+  }
+
+  // recommended lenses
+  renderRecommend(closest, cam);
+}
+
+document.getElementById("distance").addEventListener("input", calcFocal);
+document.getElementById("distanceInput").addEventListener("input", () => {
+  const v = parseFloat(document.getElementById("distanceInput").value);
+  if (!isNaN(v) && v >= 0.5 && v <= 50) {
+    document.getElementById("distance").value = Math.round(v * 2) / 2; // 0.5刻みにスナップ
+    calcFocal();
+  }
+});
+document.getElementById("height").addEventListener("input", calcFocal);
+document.getElementById("orientation").addEventListener("change", calcFocal);
+
+// ---- Frame buttons ----
+document.querySelectorAll(".frame-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentFrame = btn.dataset.frame;
+    document.querySelectorAll(".frame-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    updateFramingPreview(currentFrame);
+    calcFocal();
+  });
+});
+updateFramingPreview("bust");
+
+// ---- Recommended lenses ----
+function renderRecommend(focal, cam) {
+  const container = document.getElementById("lensRecommend");
+  const lenses    = LENS_DB[cam.mount] || LENS_DB["ff"] || [];
+  if (!lenses.length) { container.innerHTML = ""; return; }
+
+  const sorted = [...lenses].sort((a, b) => Math.abs(a.focal - focal) - Math.abs(b.focal - focal));
+  const top    = sorted.slice(0, 3);
+
+  container.innerHTML = `
+    <div class="recommend-box">
+      <div class="recommend-title">このカメラのおすすめレンズ（${focal}mm前後）</div>
+      <div class="recommend-list">
+        ${top.map(l => `
+          <div class="recommend-item">
+            <div class="recommend-focal">${l.focal}mm</div>
+            <div class="recommend-info">
+              <div class="recommend-name">${l.name}</div>
+              <div class="recommend-meta">${l.maker} ／ ${l.note}</div>
+            </div>
+            <div class="recommend-badge ${l.focal === focal ? 'exact' : ''}">f/${l.fMin}</div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+}
+
+// ---- DoF calc ----
+function calcDoF() {
+  const cam  = getCam();
+  const f_mm = parseFloat(document.getElementById("dofFocal").value);
+  const d_m  = parseFloat(document.getElementById("dofDist").value);
+  const N    = aperture;
+  const c    = cam.coc;
+
+  document.getElementById("dofFocalVal").textContent = f_mm + " mm";
+  document.getElementById("dofDistVal").textContent  = d_m.toFixed(1) + " m";
+
+  const d_mm = d_m * 1000;
+  const H    = (f_mm * f_mm) / (N * c) + f_mm;
+
+  document.getElementById("hyperfocal").textContent = (H / 1000).toFixed(1) + " m";
+
+  // Dn: 近点（分母が0になる場合は0にクランプ）
+  const DnDenom = H + d_mm - 2 * f_mm;
+  const Dn = DnDenom > 0 ? (d_mm * (H - f_mm)) / DnDenom : 0;
+  let dofDepth = 0;
+
+  // d_mm >= H のとき遠点の分母 H - d_mm <= 0 → 遠点∞
+  if (d_mm >= H - f_mm || d_mm >= H) {
+    document.getElementById("dofNear").textContent  = fmtDist(Dn);
+    document.getElementById("dofFar").innerHTML     = '<span class="inf">∞</span>';
+    document.getElementById("dofTotal").innerHTML   = '<span class="inf">∞</span>';
+    dofDepth = Infinity;
+  } else {
+    const DfDenom = H - d_mm;
+    const Df = (d_mm * (H - f_mm)) / DfDenom;
+    dofDepth = Df - Dn;
+    document.getElementById("dofNear").textContent  = fmtDist(Dn);
+    document.getElementById("dofFar").textContent   = fmtDist(Df);
+    document.getElementById("dofTotal").textContent = fmtDist(dofDepth);
+  }
+
+  // ボケ量計算
+  const bokeNote = document.getElementById("bokeNote");
+  if (!isFinite(dofDepth) || dofDepth <= 0 || d_mm <= f_mm) {
+    document.getElementById("bokeFront").textContent = "--";
+    document.getElementById("bokeRear").textContent  = "--";
+    bokeNote.innerHTML = "";
+    return;
+  }
+  const pupil   = f_mm / N;
+  const v       = (f_mm * d_mm) / (d_mm - f_mm);
+  const x_rear  = d_mm + dofDepth;
+  const v_rear  = (f_mm * x_rear) / (x_rear - f_mm);
+  const x_front = Math.max(d_mm - dofDepth, f_mm + 1);
+  const v_front = (f_mm * x_front) / (x_front - f_mm);
+  const bokeR   = pupil * Math.abs(v_rear - v)  / v_rear;
+  const bokeF   = pupil * Math.abs(v_front - v) / v_front;
+
+  document.getElementById("bokeFront").textContent = bokeF.toFixed(2) + " mm";
+  document.getElementById("bokeRear").textContent  = bokeR.toFixed(2) + " mm";
+
+  const ratio = bokeR / c;
+  const comment = ratio < 1 ? "ほぼボケなし" : ratio < 3 ? "わずかなボケ" : ratio < 8 ? "適度なボケ" : ratio < 20 ? "大きなボケ" : "非常に大きなボケ";
+  bokeNote.innerHTML = `<span>後ボケ目安</span><span>${comment}（${ratio.toFixed(1)}× CoC）</span>`;
+
+  updateDofVis(d_m, Dn / 1000, isFinite(dofDepth) ? (Dn + dofDepth) / 1000 : Infinity);
+  updateBokeVis(bokeF, bokeR);
+}
+
+function updateDofVis(d_m, Dn_m, Df_m) {
+  const isInf   = !isFinite(Df_m);
+  const maxDist = isInf ? d_m * 4 : Math.max(Df_m * 1.25, d_m * 2, 1);
+  const pct     = v => Math.min(100, Math.max(0, (v / maxDist) * 100));
+
+  const nearPct    = pct(Dn_m);
+  const farPct     = isInf ? 100 : pct(Df_m);
+  const subjectPct = pct(d_m);
+
+  const zone = document.getElementById('dofVisZone');
+  if (!zone) return;
+  zone.style.left  = nearPct + '%';
+  zone.style.width = Math.max(0, farPct - nearPct) + '%';
+  if (isInf) zone.classList.add('to-inf'); else zone.classList.remove('to-inf');
+
+  document.getElementById('dofVisSubject').style.left = subjectPct + '%';
+
+  const nearLbl = document.getElementById('dofVisNearLbl');
+  nearLbl.textContent = Dn_m.toFixed(1) + 'm';
+  nearLbl.style.left  = nearPct + '%';
+
+  const farLbl = document.getElementById('dofVisFarLbl');
+  farLbl.textContent = isInf ? '∞' : Df_m.toFixed(1) + 'm';
+  farLbl.style.left  = Math.min(97, farPct) + '%';
+}
+
+function updateBokeVis(bokeF_mm, bokeR_mm) {
+  const toSize = v => Math.min(100, Math.max(12, v * 80));
+  const fc = document.getElementById('bokeFrontCircle');
+  const rc = document.getElementById('bokeRearCircle');
+  if (!fc || !rc) return;
+  const fs = toSize(bokeF_mm), rs = toSize(bokeR_mm);
+  fc.style.width = fc.style.height = fs + 'px';
+  rc.style.width = rc.style.height = rs + 'px';
+}
+
+document.getElementById("dofFocal").addEventListener("input", calcDoF);
+document.getElementById("dofDist").addEventListener("input", calcDoF);
+
+document.querySelectorAll(".ap-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    aperture = parseFloat(btn.dataset.f);
+    document.querySelectorAll(".ap-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("dofApertureLabel").textContent = "f/" + aperture;
+    calcDoF();
+  });
+});
+
+// ---- Zoom conversion ----
+// センサー幅(mm) → 実際の対角長(mm): アスペクト比が異なる(MFT=4:3)ので幅だけでは不正確
+const FORMAT_DIAG = {
+  43.8: Math.sqrt(43.8*43.8 + 32.9*32.9), // 中判 GFX (4:3)
+  36:   Math.sqrt(36*36   + 24*24),        // フルサイズ (3:2)
+  23.5: Math.sqrt(23.5*23.5 + 15.6*15.6), // APS-C Sony/Nikon (3:2)
+  22.3: Math.sqrt(22.3*22.3 + 14.9*14.9), // APS-C Canon (3:2)
+  17.3: Math.sqrt(17.3*17.3 + 13.0*13.0), // マイクロフォーサーズ (4:3)
+  13.2: Math.sqrt(13.2*13.2 + 8.8*8.8),   // 1インチ (4:3)
+};
+const DIAG_35 = Math.sqrt(36*36 + 24*24); // 43.27mm
+
+function calcZoom() {
+  const fromW   = parseFloat(document.getElementById("zoomFromCam").value);
+  const toW     = parseFloat(document.getElementById("zoomToCam").value);
+  const focal   = parseFloat(document.getElementById("zoomFocalSlider").value);
+
+  document.getElementById("zoomFocalDisplay").textContent = focal + " mm";
+  document.getElementById("zoomFocalInput").value         = focal;
+
+  // 対角ベースの換算（アスペクト比が違うセンサーでも正確）
+  const diagFrom = FORMAT_DIAG[fromW] || Math.sqrt(fromW*fromW + (fromW*2/3)*(fromW*2/3));
+  const diagTo   = FORMAT_DIAG[toW]   || Math.sqrt(toW*toW   + (toW*2/3)*(toW*2/3));
+  const result   = focal * (diagTo / diagFrom);
+  const cfFrom   = DIAG_35 / diagFrom;
+  const cfTo     = DIAG_35 / diagTo;
+
+  document.getElementById("zoomResultMain").textContent = result.toFixed(0) + " mm";
+  document.getElementById("zoomResultSub").textContent  = "換算後の焦点距離";
+  document.getElementById("zoomCropRatio").textContent  = (diagFrom / diagTo).toFixed(2) + "×";
+  document.getElementById("zoomEqFrom").textContent     = (focal * cfFrom).toFixed(0) + " mm相当";
+  document.getElementById("zoomEqTo").textContent       = (result * cfTo).toFixed(0) + " mm相当";
+}
+
+document.getElementById("zoomFromCam").addEventListener("change", calcZoom);
+document.getElementById("zoomToCam").addEventListener("change", calcZoom);
+document.getElementById("zoomFocalSlider").addEventListener("input", e => {
+  document.getElementById("zoomFocalInput").value = e.target.value;
+  calcZoom();
+});
+document.getElementById("zoomFocalInput").addEventListener("input", e => {
+  const v = Math.max(1, Math.min(2000, parseInt(e.target.value) || 50));
+  document.getElementById("zoomFocalSlider").value = Math.min(600, v);
+  calcZoom();
+});
+
+// ================================================================
+// 天気・シーン別 適正EV
+// EV = log2(N² × 100 / (ISO × ss))  at correct exposure
+// ================================================================
+const WEATHER_SCENES = [
+  { key:'clear_bright', label:'快晴',      emoji:'🌞', ev:16, desc:'ビーチ・雪山 — 非常に明るく白飛びしやすい' },
+  { key:'clear',        label:'晴れ',      emoji:'☀️', ev:15, desc:'晴天の屋外。Sunny 16 の基本条件' },
+  { key:'partly',       label:'薄曇り',    emoji:'⛅', ev:13, desc:'薄い雲のある晴れ' },
+  { key:'cloudy',       label:'曇り',      emoji:'☁️', ev:12, desc:'全天曇り。柔らかい光でポートレート向き' },
+  { key:'rain',         label:'雨天',      emoji:'🌧️', ev:10, desc:'雨・重い曇り。ISO高めが必要' },
+  { key:'shade',        label:'日陰',      emoji:'🌿', ev:11, desc:'晴れた日の日陰。直射光なし' },
+  { key:'golden',       label:'黄金時間',  emoji:'🌅', ev:12, desc:'日の出・日没前後1時間。暖色の美しい光' },
+  { key:'magic',        label:'夕暮れ',    emoji:'🌆', ev: 9, desc:'マジックアワー（日没直後）。三脚推奨' },
+  { key:'night',        label:'夜景',      emoji:'🌃', ev: 6, desc:'街灯のある夜景。高ISO＋三脚必須' },
+  { key:'indoor_b',     label:'室内（明）', emoji:'💡', ev: 9, desc:'明るいオフィス・店舗' },
+  { key:'indoor_d',     label:'室内（暗）', emoji:'🕯️', ev: 5, desc:'薄暗いカフェ・レストラン。限界ISO域' },
+];
+
+let currentWeatherKey = null;
+
+function initWeatherGrid() {
+  const grid = document.getElementById('weatherGrid');
+  grid.innerHTML = WEATHER_SCENES.map(s =>
+    `<button class="weather-btn" data-key="${s.key}">
+      <span class="weather-btn-icon">${s.emoji}</span>
+      <span class="weather-btn-label">${s.label}</span>
+      <span class="weather-ev-badge">EV${s.ev}</span>
+    </button>`
+  ).join('');
+
+  grid.querySelectorAll('.weather-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      grid.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentWeatherKey = btn.dataset.key;
+      const sc = WEATHER_SCENES.find(s => s.key === currentWeatherKey);
+      document.getElementById('weatherDesc').textContent =
+        sc.emoji + ' ' + sc.desc;
+      updateExposure();
+    });
+  });
+}
+
+const EV_GAUGE_MIN = 0, EV_GAUGE_MAX = 18;
+function evPct(ev) {
+  return Math.min(100, Math.max(0, (ev - EV_GAUGE_MIN) / (EV_GAUGE_MAX - EV_GAUGE_MIN) * 100));
+}
+
+function updateEvGauge(currentEV, scene) {
+  const needle = document.getElementById('evNeedle');
+  const zone   = document.getElementById('evTargetZone');
+  const curBdg = document.getElementById('evCurrentBadge');
+  const tgtBdg = document.getElementById('evTargetBadge');
+  if (!needle) return;
+
+  needle.style.left = evPct(currentEV) + '%';
+  curBdg.textContent = 'カメラ設定: EV ' + currentEV.toFixed(1);
+
+  if (scene) {
+    const lo = evPct(scene.ev - 1), hi = evPct(scene.ev + 1);
+    zone.style.left    = lo + '%';
+    zone.style.width   = (hi - lo) + '%';
+    zone.style.display = 'block';
+    tgtBdg.textContent = scene.emoji + ' 目標: EV ' + scene.ev + ' ±1';
+  } else {
+    zone.style.display = 'none';
+    tgtBdg.textContent = 'シーン未選択';
+  }
+}
+
+function renderVerdict(currentEV, scene) {
+  const box = document.getElementById('verdictBox');
+  if (!box) return;
+  if (!scene) { box.className = 'verdict-box'; return; }
+
+  const diff = currentEV - scene.ev;  // positive = camera darker, negative = camera brighter
+  let cls, header, detail;
+
+  if (diff < -3) {
+    cls    = 'bad';
+    header = '⚠️ 白飛び — 大幅な露出オーバー';
+    detail = `カメラ設定 EV ${currentEV.toFixed(1)} は ${scene.label}（目標 EV ${scene.ev}）に対して <b>${Math.abs(diff).toFixed(1)} EV 明るすぎます</b>。<br>白トビが発生しハイライトが完全に飛びます。<br>→ シャッター速度を速くする・F値を上げる・ISO を下げる`;
+  } else if (diff < -1) {
+    cls    = 'over';
+    header = '⚡ やや露出オーバー';
+    detail = `${scene.label}に対して <b>${Math.abs(diff).toFixed(1)} EV 明るめ</b>の設定です。<br>空や白い被写体でハイライト飛びが起きやすい状態です。<br>→ SS を少し速くするか ISO を下げることを推奨`;
+  } else if (diff > 3) {
+    cls    = 'bad';
+    header = '🌑 露出不足 — 大幅なアンダー';
+    detail = `カメラ設定 EV ${currentEV.toFixed(1)} は ${scene.label}（目標 EV ${scene.ev}）に対して <b>${diff.toFixed(1)} EV 暗すぎます</b>。<br>画像全体が暗くなりノイズが多発します。<br>→ シャッター速度を遅くする・F値を下げる・ISO を上げる`;
+  } else if (diff > 1) {
+    cls    = 'under';
+    header = '🌙 やや露出不足';
+    detail = `${scene.label}に対して <b>${diff.toFixed(1)} EV 暗め</b>の設定です。<br>シャドウ部がつぶれやすく、RAW現像でも復元が難しい場合があります。<br>→ SS を少し遅くするか ISO を上げることを推奨`;
+  } else {
+    cls    = 'ok';
+    header = '✅ 適正露出';
+    detail = `<b>${scene.emoji} ${scene.label}</b> の環境に対して適切な露出設定です（EV ${currentEV.toFixed(1)} ≈ 目標 EV ${scene.ev}）。`;
+  }
+
+  box.className = 'verdict-box show ' + cls;
+  box.innerHTML = `<div class="verdict-header">${header}</div><div class="verdict-detail">${detail}</div>`;
+}
+
+function renderRecSettings(scene) {
+  const card = document.getElementById('recCard');
+  const list = document.getElementById('recSettingsList');
+  if (!card || !list || !scene) { if (card) card.style.display = 'none'; return; }
+
+  const presets = [
+    { label: '標準',     icon: '📷', f: 5.6, iso: 400  },
+    { label: 'スポーツ', icon: '🏃', f: 5.6, iso: 3200 },
+    { label: 'ボケ重視', icon: '🌸', f: 2.0, iso: 200  },
+    { label: '低ノイズ', icon: '✨', f: 8.0, iso: 100  },
+  ];
+
+  list.innerHTML = presets.map(p => {
+    const ss = (p.f * p.f * 100) / (p.iso * Math.pow(2, scene.ev));
+    let ssText, status, statusCls;
+
+    if (ss >= 30)       { ssText = '30s以上';                      status = '三脚必須'; statusCls = 'tripod'; }
+    else if (ss >= 2)   { ssText = ss.toFixed(1) + ' s';           status = '三脚必須'; statusCls = 'tripod'; }
+    else if (ss >= 0.5) { ssText = ss.toFixed(1) + ' s';           status = '三脚推奨'; statusCls = 'tripod'; }
+    else if (ss >= 0.05){ ssText = '1/' + Math.round(1/ss) + ' s'; status = '手ブレ注意'; statusCls = 'caution'; }
+    else                { ssText = '1/' + Math.round(1/ss) + ' s'; status = '手持ちOK ✓'; statusCls = 'ok'; }
+
+    return `<div class="rec-item">
+      <span class="rec-label">${p.icon} ${p.label}</span>
+      <span class="rec-params">f/${p.f} &nbsp; ISO ${p.iso.toLocaleString()}</span>
+      <div><div class="rec-ss">${ssText}</div><div class="rec-status ${statusCls}">${status}</div></div>
+    </div>`;
+  }).join('');
+
+  card.style.display = 'block';
+}
+
+// ---- Exposure ----
+const SS_STEPS  = ["30","15","8","4","2","1","1/2","1/4","1/8","1/15","1/30","1/60","1/125","1/250","1/500","1/1000","1/2000","1/4000","1/8000","1/16000","1/32000"];
+const ISO_STEPS = [100,200,400,800,1600,3200,6400,12800,25600,51200,102400,204800,409600];
+const F_STEPS   = [1.0,1.4,1.8,2.0,2.8,4,5.6,8,11,16,22];
+
+let lockedParam = null;
+
+function ssToSeconds(s) {
+  if (!s.includes("/")) return parseFloat(s);
+  const [a, b] = s.split("/");
+  return parseFloat(a) / parseFloat(b);
+}
+
+function calcEV(ssIdx, isoIdx, fIdx) {
+  const ss  = ssToSeconds(SS_STEPS[ssIdx]);
+  const iso = ISO_STEPS[isoIdx];
+  const f   = F_STEPS[fIdx];
+  return Math.log2((f * f * 100) / (iso * ss));
+}
+
+function updateExposure() {
+  const ssIdx  = parseInt(document.getElementById("expSSSlider").value);
+  const isoIdx = parseInt(document.getElementById("expISOSlider").value);
+  const fIdx   = parseInt(document.getElementById("expFSlider").value);
+
+  document.getElementById("expValSS").textContent  = SS_STEPS[ssIdx];
+  document.getElementById("expValISO").textContent = "ISO " + ISO_STEPS[isoIdx].toLocaleString();
+  document.getElementById("expValF").textContent   = "f/" + F_STEPS[fIdx];
+  document.getElementById("expSSLabel").textContent  = SS_STEPS[ssIdx];
+  document.getElementById("expISOLabel").textContent = "ISO " + ISO_STEPS[isoIdx].toLocaleString();
+  document.getElementById("expFLabel").textContent   = "f/" + F_STEPS[fIdx];
+
+  const ev = calcEV(ssIdx, isoIdx, fIdx);
+  document.getElementById("expEVVal").textContent = "EV " + ev.toFixed(1);
+
+  renderDiffResult();
+
+  // weather-aware gauge + verdict
+  const scene = currentWeatherKey ? WEATHER_SCENES.find(s => s.key === currentWeatherKey) : null;
+  updateEvGauge(ev, scene);
+  renderVerdict(ev, scene);
+  renderRecSettings(scene);
+
+  // handheld blur limit
+  const focal = parseInt(document.getElementById("expHandheldFocal").value);
+  document.getElementById("expHandheldFocalVal").textContent = focal + " mm";
+  const limit   = "1/" + Math.round(focal);
+  // IS補正: 5段 = 2^5 = 32倍の長時間露出が可能 → SS = 32/focal 秒
+  const issSec  = 32 / focal;
+  const limitIS = issSec >= 1 ? issSec.toFixed(1) + " s" : "1/" + Math.round(1 / issSec) + " s";
+  document.getElementById("expHandheldResult").textContent = limit + " s";
+  document.getElementById("expHandheldIS").textContent     = limitIS;
+}
+
+document.getElementById("expSSSlider").addEventListener("input", updateExposure);
+document.getElementById("expISOSlider").addEventListener("input", updateExposure);
+document.getElementById("expFSlider").addEventListener("input", updateExposure);
+document.getElementById("expHandheldFocal").addEventListener("input", updateExposure);
+
+document.querySelectorAll(".exp-cell").forEach(cell => {
+  cell.addEventListener("click", () => {
+    const p = cell.dataset.param;
+    if (lockedParam === p) {
+      lockedParam = null;
+      cell.classList.remove("locked");
+      document.getElementById("expLock" + p.toUpperCase()).textContent = "";
+    } else {
+      document.querySelectorAll(".exp-cell").forEach(c => {
+        c.classList.remove("locked");
+        document.getElementById("expLock" + c.dataset.param.toUpperCase()).textContent = "";
+      });
+      lockedParam = p;
+      cell.classList.add("locked");
+      document.getElementById("expLock" + p.toUpperCase()).textContent = "🔒";
+    }
+  });
+});
+
+// ---- Memo ----
+function getMemos() {
+  try { return JSON.parse(localStorage.getItem("focalProMemos") || "[]"); } catch { return []; }
+}
+
+document.getElementById("saveMemoBtn").addEventListener("click", () => {
+  const title = document.getElementById("memoTitle").value.trim();
+  if (!title) { alert("タイトルを入力してください"); return; }
+  const memos = getMemos();
+  memos.unshift({
+    title,
+    camera:  document.getElementById("memoCameraName").value.trim(),
+    focal:   document.getElementById("memoFocal").value,
+    fval:    document.getElementById("memoFval").value.trim(),
+    ss:      document.getElementById("memoSS").value.trim(),
+    iso:     document.getElementById("memoISO").value.trim(),
+    dist:    document.getElementById("memoDist").value.trim(),
+    note:    document.getElementById("memoNote").value.trim(),
+    date:    new Date().toLocaleDateString("ja-JP")
+  });
+  localStorage.setItem("focalProMemos", JSON.stringify(memos));
+  ["memoTitle","memoCameraName","memoFval","memoSS","memoISO","memoDist","memoNote"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("memoFocal").value = "";
+  renderMemos();
+});
+
+function renderMemos() {
+  const memos     = getMemos();
+  const container = document.getElementById("memoList");
+  if (!memos.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>保存済みメモはありません</p></div>';
+    return;
+  }
+  container.innerHTML = '<div class="memo-list">' + memos.map((m, i) => `
+    <div class="memo-item">
+      <div class="memo-item-header">
+        <div class="memo-item-title">${m.title}</div>
+        <div class="memo-item-actions">
+          <button class="load-btn" data-index="${i}">読込</button>
+          <button class="del-btn" data-memo="${i}" title="削除">×</button>
+        </div>
+      </div>
+      <div class="memo-tags">
+        ${m.camera ? `<span class="memo-tag">${m.camera}</span>` : ""}
+        ${m.focal  ? `<span class="memo-tag green">${m.focal}mm</span>` : ""}
+        ${m.fval   ? `<span class="memo-tag">${m.fval}</span>` : ""}
+        ${m.ss     ? `<span class="memo-tag orange">${m.ss}</span>` : ""}
+        ${m.iso    ? `<span class="memo-tag">ISO ${m.iso}</span>` : ""}
+        ${m.dist   ? `<span class="memo-tag">${m.dist}</span>` : ""}
+      </div>
+      ${m.note ? `<div class="memo-note">${m.note}</div>` : ""}
+      <div class="memo-date">${m.date}</div>
+    </div>`).join("") + "</div>";
+
+  container.querySelectorAll(".del-btn[data-memo]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const m = getMemos()[parseInt(btn.dataset.memo)];
+      if (m?.id) await cloudDeleteMemo(m.id);
+      const arr = getMemos();
+      arr.splice(parseInt(btn.dataset.memo), 1);
+      localStorage.setItem("focalProMemos", JSON.stringify(arr));
+      renderMemos();
+    });
+  });
+
+  container.querySelectorAll(".load-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const m = getMemos()[parseInt(btn.dataset.index)];
+      document.getElementById("memoTitle").value       = m.title;
+      document.getElementById("memoCameraName").value  = m.camera || "";
+      document.getElementById("memoFocal").value       = m.focal  || "";
+      document.getElementById("memoFval").value        = m.fval   || "";
+      document.getElementById("memoSS").value          = m.ss     || "";
+      document.getElementById("memoISO").value         = m.iso    || "";
+      document.getElementById("memoDist").value        = m.dist   || "";
+      document.getElementById("memoNote").value        = m.note   || "";
+    });
+  });
+}
+
+// ---- Save modal ----
+document.getElementById("saveFocalBtn").addEventListener("click", () => {
+  if (!pendingFocal) return;
+  document.getElementById("lensNameInput").value = pendingFocal + "mm";
+  document.getElementById("saveModal").classList.add("open");
+  document.getElementById("lensNameInput").select();
+});
+document.getElementById("modalCancel").addEventListener("click", closeModal);
+document.getElementById("saveModal").addEventListener("click", e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById("modalSave").addEventListener("click", () => {
+  const name = document.getElementById("lensNameInput").value.trim() || pendingFocal + "mm";
+  const cam  = getCam();
+  const saved = getSaved();
+  saved.push({ focal: pendingFocal, name, camera: cam.label.split("／")[1].trim(), date: new Date().toLocaleDateString("ja-JP") });
+  localStorage.setItem("focalProLenses", JSON.stringify(saved));
+  closeModal();
+  document.querySelector('[data-tab="saved"]').click();
+});
+document.getElementById("lensNameInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("modalSave").click();
+});
+function closeModal() {
+  document.getElementById("saveModal").classList.remove("open");
+}
+
+// ---- Saved lenses ----
+function getSaved() {
+  try { return JSON.parse(localStorage.getItem("focalProLenses") || "[]"); } catch { return []; }
+}
+function renderSaved() {
+  const saved = getSaved();
+  const container = document.getElementById("savedList");
+  if (!saved.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔭</div><p>保存済みレンズはありません</p><small>「焦点距離」タブで計算後、<br>「このレンズを保存」ボタンを押してください</small></div>`;
+    return;
+  }
+  container.innerHTML = '<div class="lens-list">' + saved.map((l, i) => `
+    <div class="lens-item">
+      <div class="lens-focal">${l.focal}mm</div>
+      <div class="lens-details">
+        <div class="lens-name">${l.name}</div>
+        <div class="lens-meta">${l.camera} ／ ${l.date}</div>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;">
+        ${l.id ? `<button class="share-btn" data-id="${l.id}" data-public="${l.is_public}" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;">${l.is_public ? '🔗 共有中' : '🌐 共有する'}</button>` : ''}
+        <button class="del-btn" data-index="${i}" data-id="${l.id || ''}" title="削除">×</button>
+      </div>
+    </div>`).join("") + "</div>";
+
+  container.querySelectorAll(".del-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const cloudId = btn.dataset.id;
+      if (cloudId) await cloudDeleteLens(cloudId);
+      const arr = getSaved();
+      arr.splice(parseInt(btn.dataset.index), 1);
+      localStorage.setItem("focalProLenses", JSON.stringify(arr));
+      renderSaved();
+    });
+  });
+  container.querySelectorAll(".share-btn").forEach(btn => {
+    btn.addEventListener("click", () => shareToggle(btn.dataset.id, btn));
+  });
+}
+
+// ================================================================
+// 露出計
+// ================================================================
+let meterStream   = null;
+let meterTimer    = null;
+let meterMode     = 'avg';   // 'avg' | 'spot' | 'high'
+let meterRunning  = false;
+
+const METER_PRESETS = [
+  { icon:'📷', name:'標準',        f:2.8,  iso:400  },
+  { icon:'🏃', name:'スポーツ',    f:4.0,  iso:3200 },
+  { icon:'🌸', name:'ボケ重視',    f:1.8,  iso:200  },
+  { icon:'✨', name:'低ノイズ',    f:8.0,  iso:100  },
+];
+
+// EV scene name table
+function evSceneName(ev) {
+  if (ev >= 17) return '☀️ 快晴（白飛び注意）';
+  if (ev >= 15) return '☀️ 晴天の屋外';
+  if (ev >= 13) return '⛅ 薄曇りの屋外';
+  if (ev >= 11) return '☁️ 曇り／日陰';
+  if (ev >= 9)  return '🌅 夕方・室内（明）';
+  if (ev >= 7)  return '🌆 マジックアワー';
+  if (ev >= 5)  return '🌃 夜景／暗い室内';
+  return            '🌑 非常に暗い環境';
+}
+
+async function startMeter() {
+  const btn = document.getElementById('meterStartBtn');
+  const status = document.getElementById('meterStatus');
+  if (meterRunning) { stopMeter(); return; }
+  try {
+    status.textContent = 'カメラを起動中...';
+    meterStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
+    });
+    const video = document.getElementById('meterVideo');
+    video.srcObject = meterStream;
+    await video.play();
+    meterRunning = true;
+    btn.textContent = '⏹ 停止';
+    btn.style.background = '#dc2626';
+    status.textContent = 'リアルタイム測定中…';
+
+    // Try to get actual exposure settings from track
+    const track = meterStream.getVideoTracks()[0];
+    const cap   = track.getCapabilities ? track.getCapabilities() : {};
+    if (cap.exposureMode) {
+      track.applyConstraints({ advanced: [{ exposureMode: 'manual' }] }).catch(()=>{});
+    }
+
+    meterTimer = setInterval(() => measureScene(track), 200);
+  } catch (e) {
+    status.textContent = 'カメラへのアクセスが拒否されました。ブラウザの設定でカメラを許可してください。';
+    console.error(e);
+  }
+}
+
+function stopMeter() {
+  if (meterTimer)  { clearInterval(meterTimer); meterTimer = null; }
+  if (meterStream) { meterStream.getTracks().forEach(t => t.stop()); meterStream = null; }
+  meterRunning = false;
+  _smoothedEV = null; _smoothedR = null; _smoothedG = null; _smoothedB = null;
+  const btn = document.getElementById('meterStartBtn');
+  btn.textContent = '📷 カメラを起動';
+  btn.style.background = '';
+  document.getElementById('meterStatus').textContent = '測定を停止しました';
+}
+
+function measureScene(track) {
+  const video  = document.getElementById('meterVideo');
+  const canvas = document.getElementById('meterCanvas');
+  if (!video.videoWidth) return;
+
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+
+  let pixels;
+  if (meterMode === 'spot') {
+    // Center 20% square
+    const cx = Math.floor(canvas.width  * 0.4);
+    const cy = Math.floor(canvas.height * 0.4);
+    const sw = Math.floor(canvas.width  * 0.2);
+    const sh = Math.floor(canvas.height * 0.2);
+    pixels = ctx.getImageData(cx, cy, sw, sh).data;
+  } else {
+    pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  }
+
+  // Build luminance histogram + accumulate RGB for WB
+  const hist = new Uint32Array(256);
+  let sumL = 0, sumR = 0, sumG = 0, sumB = 0, count = 0;
+  for (let i = 0; i < pixels.length; i += 4) {
+    const r = pixels[i], g = pixels[i+1], b = pixels[i+2];
+    const L = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+    hist[L]++;
+    sumL += L; sumR += r; sumG += g; sumB += b;
+    count++;
+  }
+  const avgL = sumL / count;  // 0-255
+  const avgR = sumR / count, avgG = sumG / count, avgBchan = sumB / count;
+
+  let measuredL;
+  if (meterMode === 'high') {
+    // 97th percentile luminance (highlight metering)
+    let cum = 0, target = count * 0.97;
+    measuredL = 255;
+    for (let i = 0; i < 256; i++) { cum += hist[i]; if (cum >= target) { measuredL = i; break; } }
+  } else {
+    measuredL = avgL;
+  }
+
+  // Attempt to get real EV from camera track settings
+  let ev;
+  const settings = track.getSettings ? track.getSettings() : {};
+  if (settings.exposureTime && settings.iso) {
+    // EV = log2(N² / t) - log2(ISO/100), assume N≈1.8 for phone
+    const N = 1.8;
+    const t = settings.exposureTime; // seconds
+    const iso = settings.iso;
+    ev = Math.log2((N * N) / t) - Math.log2(iso / 100);
+  } else {
+    // Fallback: luminance-based estimate
+    // 128 (mid-gray) ≈ correct exposure at scene EV
+    // calibration: EV_scene ≈ log2(L/128) + 12.5  (empirical midpoint)
+    const safeL = Math.max(1, measuredL);
+    ev = Math.log2(safeL / 128) + 12.5;
+    if (meterMode === 'high') ev = ev + 0.5;
+  }
+
+  ev = Math.max(0, Math.min(20, ev));
+
+  updateMeterDisplay(ev, hist, count);
+  updateWBDisplay(avgR, avgG, avgBchan);
+}
+
+let _smoothedEV = null;
+function updateMeterDisplay(ev, hist, count) {
+  _smoothedEV = _smoothedEV === null ? ev : _smoothedEV * 0.7 + ev * 0.3;
+  const displayEV = _smoothedEV;
+  meterEV = displayEV; // store for manual comparison
+
+  // Overlay & main number
+  document.getElementById('meterEvOverlay').textContent = displayEV.toFixed(1);
+  document.getElementById('meterEvNumber').textContent  = displayEV.toFixed(1);
+  document.getElementById('meterEvScene').textContent   = evSceneName(displayEV);
+
+  // Analog needle: map EV 0-18 → angle -130deg to +130deg
+  const needle = document.getElementById('meterNeedle');
+  if (needle) {
+    const pct   = Math.min(1, Math.max(0, displayEV / 18));
+    const angle = -130 + pct * 260;  // degrees
+    needle.style.transform = `rotate(${angle}deg)`;
+  }
+
+  // EV gauge in exposure tab (reuse)
+  updateEvGauge(displayEV, currentWeatherKey ? WEATHER_SCENES.find(s=>s.key===currentWeatherKey) : null);
+
+  // Histogram
+  drawHistogram(hist, count);
+
+  // Alert
+  const shadowPct = Array.from(hist).slice(0,  30).reduce((a,b)=>a+b,0) / count;
+  const highPct   = Array.from(hist).slice(226,256).reduce((a,b)=>a+b,0) / count;
+  const alertEl   = document.getElementById('histogramAlert');
+  if (highPct > 0.05) {
+    alertEl.className = 'histogram-alert over';
+    alertEl.textContent = `⚡ ハイライト警告: ${(highPct*100).toFixed(0)}% が飽和しています（白飛び）`;
+  } else if (shadowPct > 0.4) {
+    alertEl.className = 'histogram-alert under';
+    alertEl.textContent = `🌑 シャドウ警告: ${(shadowPct*100).toFixed(0)}% が暗すぎます（露出不足）`;
+  } else {
+    alertEl.className = 'histogram-alert ok';
+    alertEl.textContent = '✅ 輝度分布は適正範囲内です';
+  }
+
+  // EV diff vs exposure tab
+  renderDiffResult();
+  renderMeterRec(displayEV);
+  updateRecordBtn(displayEV);
+}
+
+function drawHistogram(hist, count) {
+  const canvas = document.getElementById('histogramCanvas');
+  if (!canvas) return;
+  const W = canvas.offsetWidth || 320;
+  const H = 70;
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Find max for scaling
+  let maxVal = 1;
+  for (let i = 0; i < 256; i++) if (hist[i] > maxVal) maxVal = hist[i];
+
+  // Draw colored histogram bars
+  const binW = W / 256;
+  for (let i = 0; i < 256; i++) {
+    const h = (hist[i] / maxVal) * (H - 2);
+    const t = i / 255;
+    // Color gradient: blue → green → red
+    const r = Math.round(t < 0.5 ? 30 + t*2*100 : 130 + (t-0.5)*2*100);
+    const g = Math.round(t < 0.5 ? 30 + t*2*150 : 180 - (t-0.5)*2*150);
+    const b = Math.round(t < 0.5 ? 200 - t*2*150 : 50);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(i * binW, H - h, Math.ceil(binW) + 0.5, h);
+  }
+
+  // Zone markers
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth   = 1;
+  [85, 170].forEach(x => {
+    const px = x / 255 * W;
+    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
+  });
+}
+
+// ================================================================
+// White Balance (WB)
+// ================================================================
+
+// Camera WB presets: { name, K, dot color }
+const WB_PRESETS = [
+  { name: 'オート (AWB)',    k: 0,    dot: '#e2e8f0', range: [2500, 9000], icon: '🤖' },
+  { name: 'タングステン',    k: 2850, dot: '#ff8c40', range: [2500, 3200], icon: '💡' },
+  { name: 'ハロゲン',        k: 3200, dot: '#ffaa55', range: [3000, 3500], icon: '🔦' },
+  { name: '蛍光灯 (白)',     k: 4000, dot: '#ffe090', range: [3700, 4500], icon: '🔆' },
+  { name: '晴天',            k: 5200, dot: '#fffde7', range: [4800, 5600], icon: '☀️' },
+  { name: 'フラッシュ',      k: 5500, dot: '#ffffff', range: [5200, 5800], icon: '⚡' },
+  { name: '曇り',            k: 6500, dot: '#ddeeff', range: [6000, 7000], icon: '☁️' },
+  { name: '日陰',            k: 7500, dot: '#c0d8ff', range: [7000, 8500], icon: '🌿' },
+];
+
+// Robertson's simplified CCT from R, G, B averages
+// Uses the xy chromaticity → CCT approximation
+function rgbToCCT(avgR, avgG, avgB) {
+  const sum = avgR + avgG + avgB;
+  if (sum < 1) return 5500; // default
+
+  // sRGBガンマ補正（非線形→線形変換）
+  function linearize(v) {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  const linR = linearize(avgR);
+  const linG = linearize(avgG);
+  const linB = linearize(avgB);
+
+  // Convert to CIE xy via linear RGB→XYZ (sRGB D65 matrix)
+  const X = 0.4124 * linR + 0.3576 * linG + 0.1805 * linB;
+  const Y = 0.2126 * linR + 0.7152 * linG + 0.0722 * linB;
+  const Z = 0.0193 * linR + 0.1192 * linG + 0.9505 * linB;
+  const xyzSum = X + Y + Z;
+  if (xyzSum < 0.001) return 5500;
+  const cx = X / xyzSum;
+  const cy = Y / xyzSum;
+
+  // McCamy's approximation: CCT = 449n³ + 3525n² + 6823n + 5520.33
+  const n = (cx - 0.3320) / (0.1858 - cy);
+  const cct = 449 * n * n * n + 3525 * n * n + 6823.3 * n + 5520.33;
+  return Math.max(1500, Math.min(12000, Math.round(cct / 50) * 50));
+}
+
+// G-M tint: ratio of G to (R+B)/2
+// >1 = green, <1 = magenta, 1 = neutral
+function calcTint(avgR, avgG, avgB) {
+  const rb = (avgR + avgB) / 2;
+  return rb > 0 ? avgG / rb : 1;
+}
+
+function cctToColor(k) {
+  // Approximate display color from CCT
+  const stops = [
+    [1500, '#ff4500'], [2000, '#ff6b00'], [2700, '#ff8c40'],
+    [3200, '#ffaa55'], [4000, '#ffe090'], [5000, '#fff5cc'],
+    [5500, '#ffffff'], [6500, '#e8f0ff'], [7500, '#c0d4ff'],
+    [9000, '#a0c0ff'], [12000, '#80aaff'],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [k0, c0] = stops[i];
+    const [k1, c1] = stops[i + 1];
+    if (k >= k0 && k <= k1) {
+      const t = (k - k0) / (k1 - k0);
+      return lerpHex(c0, c1, t);
+    }
+  }
+  return k < 1500 ? '#ff2200' : '#6699ff';
+}
+
+function lerpHex(a, b, t) {
+  const p = s => parseInt(s, 16);
+  const r = v => Math.round(v).toString(16).padStart(2, '0');
+  const [ar, ag, ab] = [p(a.slice(1,3)), p(a.slice(3,5)), p(a.slice(5,7))];
+  const [br, bg, bb] = [p(b.slice(1,3)), p(b.slice(3,5)), p(b.slice(5,7))];
+  return '#' + r(ar + (br-ar)*t) + r(ag + (bg-ag)*t) + r(ab + (bb-ab)*t);
+}
+
+function cctSceneName(k) {
+  if (k < 2200) return '🕯️ キャンドル・焚き火';
+  if (k < 3000) return '💡 電球・タングステン照明';
+  if (k < 3500) return '🔦 ハロゲンランプ・夕焼け';
+  if (k < 4200) return '🔆 蛍光灯（白色）・日出直後';
+  if (k < 5000) return '🌄 朝夕の間接光';
+  if (k < 5600) return '☀️ 晴天の屋外（基準白色光）';
+  if (k < 6200) return '⚡ ストロボ・電子フラッシュ';
+  if (k < 7000) return '☁️ 曇り空・オーバーキャスト';
+  if (k < 8500) return '🌿 晴れた日の日陰';
+  if (k < 10000) return '🌌 青空・快晴';
+  return '🧊 非常に寒色（日食・雪空）';
+}
+
+function cctToPct(k) {
+  const MIN_K = 2000, MAX_K = 10000;
+  return Math.min(100, Math.max(0, (k - MIN_K) / (MAX_K - MIN_K) * 100));
+}
+
+let _smoothedR = null, _smoothedG = null, _smoothedB = null;
+
+function updateWBDisplay(avgR, avgG, avgB) {
+  // Smooth channels
+  const smooth = (prev, cur) => prev === null ? cur : prev * 0.6 + cur * 0.4;
+  _smoothedR = smooth(_smoothedR, avgR);
+  _smoothedG = smooth(_smoothedG, avgG);
+  _smoothedB = smooth(_smoothedB, avgB);
+  const R = _smoothedR, G = _smoothedG, B = _smoothedB;
+
+  const cct   = rgbToCCT(R, G, B);
+  const tint  = calcTint(R, G, B);
+  const color = cctToColor(cct);
+
+  // Swatch
+  document.getElementById('wbSwatch').style.background = color;
+  document.getElementById('wbSwatchLabel').textContent = color.toUpperCase();
+
+  // Kelvin readout
+  const kelvinEl = document.getElementById('wbKelvin');
+  kelvinEl.style.color = color === '#ffffff' ? 'var(--text)' : color;
+  kelvinEl.innerHTML = cct.toLocaleString() + '<span class="wb-kelvin-unit"> K</span>';
+
+  // Scene name
+  document.getElementById('wbSceneName').textContent = cctSceneName(cct);
+
+  // Tint label
+  const tintDiff = tint - 1;
+  const tintTxt  = Math.abs(tintDiff) < 0.04
+    ? 'ティント: ニュートラル ✅'
+    : tintDiff > 0
+      ? `ティント: グリーン寄り (+${(tintDiff * 100).toFixed(0)})`
+      : `ティント: マゼンタ寄り (${(tintDiff * 100).toFixed(0)})`;
+  document.getElementById('wbTintLabel').textContent = tintTxt;
+
+  // CCT needle
+  document.getElementById('wbCctNeedle').style.left = cctToPct(cct) + '%';
+
+  // Tint needle: map tint 0.7–1.3 → 0–100%
+  const tintPct = Math.min(100, Math.max(0, (tint - 0.7) / 0.6 * 100));
+  document.getElementById('wbTintNeedle').style.left = tintPct + '%';
+
+  // Channel ratios
+  const rg = G > 0 ? R / G : 1;
+  const bg = G > 0 ? B / G : 1;
+  document.getElementById('wbRG').textContent = rg.toFixed(3);
+  document.getElementById('wbBG').textContent = bg.toFixed(3);
+
+  renderWBPresets(cct);
+  measuredCCT = cct;
+  updateKelvinCompare();
+}
+
+function renderWBPresets(cct) {
+  const grid = document.getElementById('wbRecGrid');
+  if (!grid) return;
+
+  grid.innerHTML = WB_PRESETS.map(p => {
+    let badge, badgeCls;
+    if (p.k === 0) {
+      // AWB is always a valid option
+      badge = '常に選択可'; badgeCls = 'close';
+    } else {
+      const diff = Math.abs(p.k - cct);
+      if (diff < 300)       { badge = '◎ 最適';   badgeCls = 'best'; }
+      else if (diff < 700)  { badge = '○ 近い';   badgeCls = 'close'; }
+      else if (diff < 1500) { badge = '△ やや差'; badgeCls = 'far'; }
+      else                  { badge = '× 不向き'; badgeCls = 'far'; }
+    }
+    const isBest = badgeCls === 'best';
+    return `<div class="wb-rec-item ${isBest ? 'best' : ''}">
+      <div class="wb-rec-dot" style="background:${p.dot};"></div>
+      <div class="wb-rec-info">
+        <div class="wb-rec-name">${p.icon} ${p.name}</div>
+        <div class="wb-rec-k">${p.k > 0 ? p.k.toLocaleString() + 'K' : 'カメラに任せる'}</div>
+      </div>
+      <span class="wb-rec-badge ${badgeCls}">${badge}</span>
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// Meter: EV diff
+// ================================================================
+let meterEV = null; // last measured EV (smoothed)
+
+function ssToSec(s) {
+  if (!s.includes('/')) return parseFloat(s);
+  const [a, b] = s.split('/');
+  return parseFloat(a) / parseFloat(b);
+}
+
+function manualEV() {
+  const ssIdx  = parseInt(document.getElementById('expSSSlider').value);
+  const fIdx   = parseInt(document.getElementById('expFSlider').value);
+  const isoIdx = parseInt(document.getElementById('expISOSlider').value);
+  const ss     = ssToSec(SS_STEPS[ssIdx]);
+  const f      = F_STEPS[fIdx];
+  const iso    = ISO_STEPS[isoIdx];
+  return Math.log2((f * f * 100) / (iso * ss));
+}
+
+function renderDiffResult() {
+  const diffNum  = document.getElementById('evDiffNumber');
+  const diffVerd = document.getElementById('evDiffVerdict');
+  const needle   = document.getElementById('evDiffNeedle');
+  const corrRow  = document.getElementById('correctionRow');
+  if (!diffNum) return;
+
+  if (meterEV === null) {
+    diffNum.textContent = '--';
+    diffNum.style.color = 'var(--text-muted)';
+    diffVerd.className  = 'ev-diff-verdict';
+    diffVerd.textContent = 'カメラを起動して測定してください';
+    if (needle)  needle.style.left = '50%';
+    if (corrRow) corrRow.innerHTML = '';
+    return;
+  }
+
+  const myEV = manualEV();
+  // diff = myEV - meterEV
+  // positive → settings expose darker than scene (underexposed relative to scene)
+  // negative → settings expose brighter than scene (overexposed)
+  const diff = myEV - meterEV;
+
+  // Display
+  const sign = diff > 0 ? '+' : '';
+  diffNum.textContent = sign + diff.toFixed(1) + ' EV';
+
+  // Needle: map diff -4 to +4 → 0% to 100% (center=50% is ±0)
+  const pct = Math.min(100, Math.max(0, (diff + 4) / 8 * 100));
+  if (needle) needle.style.left = pct + '%';
+
+  // Verdict
+  let cls, verdict, tips = [];
+  const absDiff = Math.abs(diff);
+
+  if (absDiff <= 0.5) {
+    cls = 'ok';
+    verdict = '✅ 適正露出です！この設定で撮影できます';
+  } else if (diff > 3 || diff < -3) {
+    cls = 'bad';
+    if (diff > 0) {
+      verdict = '🌑 大幅な露出不足（シーンより暗すぎる設定）';
+      tips = [
+        { label: 'SSを遅く',      hint: 'シャッターを開く時間を延ばす' },
+        { label: 'F値を下げる',   hint: '絞りを開放して光を取り込む' },
+        { label: 'ISOを上げる',   hint: '感度を上げて光を増幅する' },
+      ];
+    } else {
+      verdict = '⚡ 大幅な露出オーバー（シーンより明るすぎる設定）';
+      tips = [
+        { label: 'SSを速く',      hint: 'シャッター時間を短縮する' },
+        { label: 'F値を上げる',   hint: '絞りを絞り込んで光を減らす' },
+        { label: 'ISOを下げる',   hint: '感度を下げて白飛びを防ぐ' },
+      ];
+    }
+  } else if (diff > 1) {
+    cls = 'under';
+    verdict = `🌙 露出不足 (${diff.toFixed(1)} EV アンダー)`;
+    tips = [
+      { label: 'SSを遅く', hint: '例: 1/125 → 1/60' },
+      { label: 'F値を下げる', hint: '例: f/8 → f/4' },
+      { label: 'ISOを上げる', hint: '例: ISO400 → ISO800' },
+    ];
+  } else if (diff < -1) {
+    cls = 'over';
+    verdict = `☀️ 露出オーバー (${Math.abs(diff).toFixed(1)} EV オーバー)`;
+    tips = [
+      { label: 'SSを速く', hint: '例: 1/125 → 1/250' },
+      { label: 'F値を上げる', hint: '例: f/2.8 → f/5.6' },
+      { label: 'ISOを下げる', hint: '例: ISO800 → ISO400' },
+    ];
+  } else {
+    cls = diff > 0 ? 'under' : 'over';
+    verdict = diff > 0
+      ? `🌙 やや露出不足 (${diff.toFixed(1)} EV アンダー) — 許容範囲内`
+      : `☀️ やや露出オーバー (${Math.abs(diff).toFixed(1)} EV オーバー) — 許容範囲内`;
+  }
+
+  diffVerd.className   = 'ev-diff-verdict ' + cls;
+  diffVerd.textContent = verdict;
+  diffNum.style.color  = cls === 'ok' ? 'var(--success-text)'
+    : cls === 'under' ? '#3b82f6' : '#ef4444';
+
+  if (corrRow) {
+    corrRow.innerHTML = tips.map(t =>
+      `<div class="correction-chip" title="${t.hint}">💡 ${t.label}</div>`
+    ).join('');
+  }
+}
+
+// ================================================================
+// Manual Kelvin Dial
+// ================================================================
+let manualKelvin = 5200;
+let measuredCCT  = null; // set by updateWBDisplay
+
+function applyManualKelvin(k) {
+  manualKelvin = Math.max(2000, Math.min(10000, k));
+
+  // sync slider + number input
+  document.getElementById('kelvinSlider').value      = manualKelvin;
+  document.getElementById('kelvinNumberInput').value = manualKelvin;
+
+  // swatch + readout
+  const color = cctToColor(manualKelvin);
+  document.getElementById('kelvinManualSwatch').style.background = color;
+  const valEl = document.getElementById('kelvinManualVal');
+  valEl.style.color = color === '#ffffff' ? 'var(--text)' : color;
+  valEl.innerHTML   = manualKelvin.toLocaleString() + '<span class="kelvin-manual-unit"> K</span>';
+  document.getElementById('kelvinManualScene').textContent = cctSceneName(manualKelvin);
+
+  // highlight matching chip
+  document.querySelectorAll('.kelvin-chip').forEach(c => {
+    c.classList.toggle('active', parseInt(c.dataset.k) === manualKelvin);
+  });
+
+  // compare with measured value
+  updateKelvinCompare();
+}
+
+function updateKelvinCompare() {
+  const wrap = document.getElementById('kelvinCompareWrap');
+  if (!measuredCCT) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  const mc = cctToColor(measuredCCT);
+  const sc = cctToColor(manualKelvin);
+
+  document.getElementById('kelvinMeasuredSwatch').style.background = mc;
+  document.getElementById('kelvinMeasuredK').textContent            = measuredCCT.toLocaleString() + ' K';
+  document.getElementById('kelvinManualSwatchSmall').style.background = sc;
+  document.getElementById('kelvinManualK').textContent               = manualKelvin.toLocaleString() + ' K';
+
+  const diff = manualKelvin - measuredCCT;
+  const absDiff = Math.abs(diff);
+  const box = document.getElementById('kelvinDiffBox');
+  let cls, msg;
+
+  if (absDiff < 200) {
+    cls = 'ok';
+    msg = `✅ ほぼ一致（差 ${absDiff}K） — このケルビン設定は環境光に合っています`;
+  } else if (absDiff < 600) {
+    cls = diff > 0 ? 'warm' : 'cool';
+    msg = diff > 0
+      ? `🟠 やや暖色寄り（+${diff}K） — 白い被写体がわずかに黄みがかります`
+      : `🔵 やや寒色寄り（${diff}K） — 白い被写体がわずかに青みがかります`;
+  } else if (absDiff < 1500) {
+    cls = diff > 0 ? 'warm' : 'cool';
+    msg = diff > 0
+      ? `🟠 暖色ずれ（+${diff}K） — 全体的にアンバー/オレンジがかります。意図的でなければ環境光に近い値に`
+      : `🔵 寒色ずれ（${diff}K） — 全体的にブルー/シアンがかります。意図的でなければ環境光に近い値に`;
+  } else {
+    cls = 'far';
+    msg = diff > 0
+      ? `⚠️ 大きく暖色ずれ（+${diff}K） — 映像全体が強くオレンジになります`
+      : `⚠️ 大きく寒色ずれ（${diff}K） — 映像全体が強く青くなります`;
+  }
+
+  box.className   = 'wb-diff-result-box ' + cls;
+  box.textContent = msg;
+}
+
+// Init Kelvin dial
+document.getElementById('kelvinSlider').addEventListener('input', e => {
+  applyManualKelvin(parseInt(e.target.value));
+});
+
+document.getElementById('kelvinNumberInput').addEventListener('input', e => {
+  const v = parseInt(e.target.value);
+  if (!isNaN(v) && v >= 2000 && v <= 10000) applyManualKelvin(v);
+});
+
+document.querySelectorAll('.kelvin-chip').forEach(chip => {
+  chip.addEventListener('click', () => applyManualKelvin(parseInt(chip.dataset.k)));
+});
+
+applyManualKelvin(5200);
+
+// ================================================================
+// 露出記録機能
+// ================================================================
+function getMeterLogs() {
+  try { return JSON.parse(localStorage.getItem('focalProMeterLogs') || '[]'); } catch { return []; }
+}
+function saveMeterLogs(logs) {
+  localStorage.setItem('focalProMeterLogs', JSON.stringify(logs));
+}
+
+function evToScene(ev) {
+  if (ev >= 17)      return '☀️ 強い直射日光';
+  if (ev >= 15)      return '☀️ 晴天屋外';
+  if (ev >= 13)      return '⛅ 薄曇り';
+  if (ev >= 11)      return '☁️ 曇り空';
+  if (ev >= 9)       return '🏠 明るい室内';
+  if (ev >= 7)       return '🏠 一般的な室内';
+  if (ev >= 5)       return '🌆 薄暗い室内';
+  if (ev >= 3)       return '🌃 夜景';
+  return '🌑 非常に暗い';
+}
+
+function renderMeterLog() {
+  const logs = getMeterLogs();
+  const list = document.getElementById('meterLogList');
+  if (!list) return;
+
+  if (!logs.length) {
+    list.innerHTML = '<div class="meter-log-empty">カメラを起動して測定後、「記録する」を押してください</div>';
+    return;
+  }
+
+  list.innerHTML = logs.map((log, i) => `
+    <div class="meter-log-item">
+      <div class="meter-log-ev">EV${log.ev}</div>
+      <div class="meter-log-detail">
+        <div class="meter-log-scene">${evToScene(parseFloat(log.ev))}</div>
+        <div class="meter-log-meta">${log.mode} &nbsp;・&nbsp; ${log.cct ? log.cct + 'K' : '--'} &nbsp;・&nbsp; ${log.date}</div>
+        ${log.ss ? `<div class="meter-log-params">${log.ss}s &nbsp; ${log.fval} &nbsp; ISO ${log.iso}</div>` : ''}
+        ${log.location ? `<div class="meter-log-location">📍 ${log.location}</div>` : ''}
+      </div>
+      <button class="meter-log-del" data-index="${i}" title="削除">×</button>
+    </div>`).join('');
+
+  list.querySelectorAll('.meter-log-del').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const logs = getMeterLogs();
+      const log  = logs[parseInt(btn.dataset.index)];
+      // クラウドからも削除
+      if (log?.cloudId) {
+        try { await apiFetch('/meter_logs/' + log.cloudId, { method: 'DELETE' }); } catch {}
+      }
+      logs.splice(parseInt(btn.dataset.index), 1);
+      saveMeterLogs(logs);
+      renderMeterLog();
+    });
+  });
+}
+
+// 記録ボタン
+document.getElementById('meterRecordBtn').addEventListener('click', async () => {
+  if (meterEV === null) return;
+
+  const modeMap = { avg: '平均測光', spot: 'スポット測光', high: 'ハイライト測光' };
+  const ssIdx  = parseInt(document.getElementById('expSSSlider').value);
+  const fIdx   = parseInt(document.getElementById('expFSlider').value);
+  const isoIdx = parseInt(document.getElementById('expISOSlider').value);
+
+  const log = {
+    ev:       meterEV.toFixed(1),
+    mode:     modeMap[meterMode] || meterMode,
+    cct:      _smoothedR !== null ? Math.round(rgbToCCT(_smoothedR, _smoothedG, _smoothedB)) : null,
+    ss:       SS_STEPS[ssIdx],
+    fval:     'f/' + F_STEPS[fIdx],
+    iso:      ISO_STEPS[isoIdx],
+    location: document.getElementById('meterLocation').value.trim(),
+    note:     '',
+    date:     new Date().toLocaleString('ja-JP', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' })
+  };
+
+  const syncEl = document.getElementById('meterSyncStatus');
+
+  // クラウド保存（ログイン済みの場合）
+  if (_token) {
+    syncEl.textContent = '☁️ クラウドに保存中...';
+    try {
+      const res = await apiFetch('/meter_logs', {
+        method: 'POST',
+        body: JSON.stringify({
+          ev:       parseFloat(log.ev),
+          mode:     log.mode,
+          cct:      log.cct,
+          ss:       log.ss,
+          fval:     log.fval,
+          iso:      log.iso,
+          location: log.location,
+          note:     log.note
+        })
+      });
+      log.cloudId = res.id;
+      syncEl.textContent = '✅ クラウドに同期しました';
+      syncEl.style.color = '#16a34a';
+    } catch (e) {
+      syncEl.textContent = '⚠️ クラウド保存失敗（ローカルに保存）: ' + (e.message || 'サーバーエラー');
+      syncEl.style.color = '#dc2626';
+    }
+  } else {
+    syncEl.textContent = 'ℹ️ ログインするとSupabaseに同期されます';
+    syncEl.style.color = 'var(--text-muted)';
+  }
+
+  const logs = getMeterLogs();
+  logs.unshift(log);
+  if (logs.length > 100) logs.pop();
+  saveMeterLogs(logs);
+  renderMeterLog();
+
+  // 場所欄をリセット
+  document.getElementById('meterLocation').value = '';
+
+  // ボタンを一瞬フラッシュ
+  const btn = document.getElementById('meterRecordBtn');
+  btn.textContent = '✅ 記録しました';
+  btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
+  setTimeout(() => {
+    btn.textContent = '📌 この露出を記録する';
+    btn.style.background = '';
+    setTimeout(() => { syncEl.textContent = ''; syncEl.style.color = ''; }, 3000);
+  }, 1500);
+});
+
+// 全消去
+document.getElementById('meterLogClear').addEventListener('click', () => {
+  if (!getMeterLogs().length) return;
+  if (!confirm('記録をすべて消去しますか？')) return;
+  saveMeterLogs([]);
+  renderMeterLog();
+});
+
+// 測定中だけ記録ボタンを有効化（updateMeterDisplayから呼ばれる）
+function updateRecordBtn(ev) {
+  const btn = document.getElementById('meterRecordBtn');
+  if (!btn) return;
+  btn.disabled = (ev === null);
+  btn.style.opacity  = (ev === null) ? '0.35' : '1';
+  btn.style.cursor   = (ev === null) ? 'not-allowed' : 'pointer';
+  btn.style.transform = (ev === null) ? '' : 'scale(1)';
+}
+
+// ================================================================
+// 📸 記録タブ — 詳細一覧・編集機能
+// ================================================================
+function renderLogsTab() {
+  const logs  = getMeterLogs();
+  const list  = document.getElementById('logsTabList');
+  const count = document.getElementById('logsTotalCount');
+  if (!list) return;
+  if (count) count.textContent = logs.length ? logs.length + '件' : '';
+
+  if (!logs.length) {
+    list.innerHTML = '<div class="logs-empty">記録がありません<br><small>露出 & 測光タブでカメラを起動して記録してください</small></div>';
+    return;
+  }
+
+  list.innerHTML = logs.map((log, i) => `
+    <div class="log-card" data-index="${i}">
+      <div class="log-card-main">
+        <div class="log-card-ev">
+          EV${log.ev}
+          <small>${log.date}</small>
+        </div>
+        <div class="log-card-info">
+          <div class="log-card-scene">${evToScene(parseFloat(log.ev))}</div>
+          <div class="log-card-params">
+            ${log.ss ? `${log.ss}s &nbsp; ${log.fval} &nbsp; ISO ${log.iso} &nbsp;・&nbsp;` : ''}${log.mode}${log.cct ? ' &nbsp;・&nbsp; ' + log.cct + 'K' : ''}
+          </div>
+          ${log.location ? `<div class="log-card-location">📍 ${log.location}</div>` : ''}
+          ${log.note ? `<div class="log-card-note">📝 ${log.note}</div>` : ''}
+        </div>
+        <div class="log-card-actions">
+          <button class="log-action-btn edit-btn" data-index="${i}">✏️ 編集</button>
+          <button class="log-action-btn del log-del-btn" data-index="${i}">🗑</button>
+        </div>
+      </div>
+      <div class="log-edit-form" id="logEditForm_${i}" style="display:none;">
+        <input type="text" class="log-edit-location" placeholder="📍 撮影場所" maxlength="60" value="${log.location || ''}">
+        <textarea class="log-edit-note" rows="2" placeholder="📝 メモ（感想・設定の意図など）" maxlength="200">${log.note || ''}</textarea>
+        <div class="log-edit-actions">
+          <button class="log-edit-cancel" data-index="${i}">キャンセル</button>
+          <button class="log-edit-save" data-index="${i}">💾 保存</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // 編集ボタン
+  list.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = btn.dataset.index;
+      const form = document.getElementById('logEditForm_' + i);
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      btn.textContent = form.style.display === 'none' ? '✏️ 編集' : '▲ 閉じる';
+    });
+  });
+
+  // 保存ボタン
+  list.querySelectorAll('.log-edit-save').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.index);
+      const logs = getMeterLogs();
+      const form = document.getElementById('logEditForm_' + i);
+      logs[i].location = form.querySelector('.log-edit-location').value.trim();
+      logs[i].note     = form.querySelector('.log-edit-note').value.trim();
+      saveMeterLogs(logs);
+      renderMeterLog();
+      renderLogsTab();
+    });
+  });
+
+  // キャンセルボタン
+  list.querySelectorAll('.log-edit-cancel').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = btn.dataset.index;
+      const form = document.getElementById('logEditForm_' + i);
+      form.style.display = 'none';
+      const editBtn = list.querySelector(`.edit-btn[data-index="${i}"]`);
+      if (editBtn) editBtn.textContent = '✏️ 編集';
+    });
+  });
+
+  // 削除ボタン
+  list.querySelectorAll('.log-del-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const i    = parseInt(btn.dataset.index);
+      const logs = getMeterLogs();
+      const log  = logs[i];
+      if (log?.cloudId) {
+        try { await apiFetch('/meter_logs/' + log.cloudId, { method: 'DELETE' }); } catch {}
+      }
+      logs.splice(i, 1);
+      saveMeterLogs(logs);
+      renderMeterLog();
+      renderLogsTab();
+    });
+  });
+}
+
+// 記録タブの全消去
+document.getElementById('logsAllClear').addEventListener('click', () => {
+  if (!getMeterLogs().length) return;
+  if (!confirm('記録をすべて消去しますか？')) return;
+  saveMeterLogs([]);
+  renderMeterLog();
+  renderLogsTab();
+});
+
+function renderMeterRec(ev) {
+  const grid = document.getElementById('meterRecGrid');
+  if (!grid) return;
+
+  grid.innerHTML = METER_PRESETS.map(p => {
+    const ss = (p.f * p.f * 100) / (p.iso * Math.pow(2, ev));
+    let ssText, badgeCls, badgeTxt;
+
+    if (ss > 2)         { ssText = ss.toFixed(1) + 's';              badgeCls = 'tripod';  badgeTxt = '三脚必須'; }
+    else if (ss > 0.5)  { ssText = ss.toFixed(2) + 's';              badgeCls = 'tripod';  badgeTxt = '三脚推奨'; }
+    else if (ss > 0.04) { ssText = '1/' + Math.round(1/ss) + 's';    badgeCls = 'caution'; badgeTxt = '注意'; }
+    else                { ssText = '1/' + Math.round(1/ss) + 's';    badgeCls = 'ok';      badgeTxt = '手持ちOK'; }
+
+    return `<div class="meter-rec-item">
+      <div><span class="meter-rec-icon">${p.icon}</span><span class="meter-rec-name">${p.name}</span></div>
+      <div class="meter-rec-ss">${ssText}</div>
+      <div class="meter-rec-params">f/${p.f} &nbsp; ISO ${p.iso.toLocaleString()}</div>
+      <span class="meter-rec-badge ${badgeCls}">${badgeTxt}</span>
+    </div>`;
+  }).join('');
+}
+
+// Meter mode buttons
+document.querySelectorAll('.meter-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.meter-mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    meterMode = btn.dataset.mode;
+    const spotCircle = document.getElementById('meterSpotCircle');
+    if (spotCircle) spotCircle.style.display = meterMode === 'spot' ? 'block' : 'none';
+  });
+});
+
+document.getElementById('meterStartBtn').addEventListener('click', startMeter);
+
+// Stop meter when switching away
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab !== 'meter' && meterRunning) stopMeter();
+  });
+});
+
+// ---- Init ----
+initWeatherGrid();
+calcFocal();
+calcDoF();
+calcZoom();
+updateExposure();
+renderMeterLog();
+renderLogsTab();
+renderSaved();
+renderMemos();
+
+// ---- PWA ----
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+
+// ================================================================
+// API クライアント & 認証
+// ================================================================
+// localhostなら開発用、それ以外は同じオリジンのAPIを使う
+const API = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+  ? "http://localhost:3001/api"
+  : "/api";
+
+let _token = localStorage.getItem("fp_token") || null;
+
+async function apiFetch(path, opts = {}) {
+  const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+  if (_token) headers["Authorization"] = "Bearer " + _token;
+  const res = await fetch(API + path, { ...opts, headers });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || "エラーが発生しました");
+  return json;
+}
+
+// ---- 認証状態管理 ----
+function setSession(token, email) {
+  _token = token;
+  if (token) localStorage.setItem("fp_token", token);
+  else        localStorage.removeItem("fp_token");
+  updateAuthUI(email);
+}
+
+function updateAuthUI(email) {
+  const status    = document.getElementById("authStatus");
+  const authBtn   = document.getElementById("authBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (email) {
+    status.textContent    = "✅ " + email;
+    authBtn.style.display   = "none";
+    logoutBtn.style.display = "inline-block";
+  } else {
+    status.textContent    = "ログインするとデータがクラウドに同期されます";
+    authBtn.style.display   = "inline-block";
+    logoutBtn.style.display = "none";
+  }
+}
+
+// 起動時：トークンがあればユーザー情報を取得
+(async () => {
+  if (!_token) { updateAuthUI(null); return; }
+  try {
+    const me = await apiFetch("/auth/me");
+    updateAuthUI(me.email);
+  } catch {
+    setSession(null, null);
+  }
+})();
+
+// ---- 認証モーダル ----
+let authMode = "login"; // "login" | "register"
+
+document.getElementById("authBtn").addEventListener("click", () => {
+  document.getElementById("authModal").style.display = "flex";
+});
+function closeAuthModal() {
+  document.getElementById("authModal").style.display = "none";
+  document.getElementById("authError").style.display = "none";
+}
+document.getElementById("authModalClose").addEventListener("click", closeAuthModal);
+document.getElementById("authModal").addEventListener("click", e => {
+  if (e.target === e.currentTarget) closeAuthModal();
+});
+document.getElementById("authToggleBtn").addEventListener("click", () => {
+  authMode = authMode === "login" ? "register" : "login";
+  const isLogin = authMode === "login";
+  document.getElementById("authModalTitle").textContent  = isLogin ? "ログイン" : "アカウント作成";
+  document.getElementById("authSubmitBtn").textContent   = isLogin ? "ログイン" : "登録する";
+  document.getElementById("authToggleBtn").textContent   = isLogin ? "アカウントを作成する" : "ログインに戻る";
+  document.getElementById("authError").style.display = "none";
+});
+document.getElementById("authSubmitBtn").addEventListener("click", async () => {
+  const email    = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  const errEl    = document.getElementById("authError");
+  errEl.style.display = "none";
+  if (!email || !password) { errEl.textContent = "メールとパスワードを入力してください"; errEl.style.display = "block"; return; }
+  try {
+    if (authMode === "register") {
+      await apiFetch("/auth/register", { method: "POST", body: JSON.stringify({ email, password }) });
+      errEl.style.color = "#16a34a";
+      errEl.textContent = "登録完了！確認メールを送信しました。";
+      errEl.style.display = "block";
+    } else {
+      const data = await apiFetch("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+      setSession(data.access_token, email);
+      document.getElementById("authModal").style.display = "none";
+      // クラウドからデータを同期
+      await syncFromCloud();
+    }
+  } catch (e) {
+    errEl.style.color = "#dc2626";
+    errEl.textContent = e.message;
+    errEl.style.display = "block";
+  }
+});
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try { await apiFetch("/auth/logout", { method: "POST" }); } catch {}
+  setSession(null, null);
+});
+
+// ================================================================
+// クラウド同期
+// ================================================================
+
+// クラウドからデータを取得してローカルに上書き
+async function syncFromCloud() {
+  if (!_token) return;
+  try {
+    const [lenses, memos] = await Promise.all([
+      apiFetch("/lenses"),
+      apiFetch("/memos")
+    ]);
+    // lens_saves → focalProLenses 形式に変換
+    const localLenses = lenses.map(l => ({
+      id:     l.id,
+      focal:  l.focal_mm,
+      name:   l.title,
+      camera: l.camera || "",
+      date:   new Date(l.created_at).toLocaleDateString("ja-JP"),
+      is_public:  l.is_public,
+      share_slug: l.share_slug
+    }));
+    localStorage.setItem("focalProLenses", JSON.stringify(localLenses));
+    // memos → focalProMemos 形式に変換
+    const localMemos = memos.map(m => ({
+      id:       m.id,
+      title:    m.title,
+      camera:   m.camera  || "",
+      focal:    m.focal_mm || "",
+      fval:     m.aperture || "",
+      ss:       m.shutter_speed || "",
+      iso:      m.iso    || "",
+      dist:     m.distance || "",
+      note:     m.notes  || "",
+      date:     new Date(m.created_at).toLocaleDateString("ja-JP")
+    }));
+    localStorage.setItem("focalProMemos", JSON.stringify(localMemos));
+    renderSaved();
+    renderMemos();
+  } catch (e) {
+    console.error("クラウド同期失敗:", e);
+  }
+}
+
+// ---- レンズ保存をクラウドに送る ----
+const _origSaveLens = document.getElementById("modalSave");
+// モーダルの保存ボタンをラップ
+document.getElementById("modalSave").addEventListener("click", async () => {
+  if (!_token || !pendingFocal) return;
+  const name = document.getElementById("lensNameInput").value.trim();
+  const cam  = getCam();
+  try {
+    await apiFetch("/lenses", {
+      method: "POST",
+      body: JSON.stringify({
+        title:    name || pendingFocal + "mm",
+        camera:   cam.label,
+        focal_mm: pendingFocal
+      })
+    });
+    await syncFromCloud();
+  } catch (e) {
+    console.error("レンズ保存失敗:", e);
+  }
+}, true); // capture=true で既存リスナーより先に実行
+
+// ---- メモ保存をクラウドに送る ----
+document.getElementById("saveMemoBtn").addEventListener("click", async () => {
+  if (!_token) return; // ログイン未済はローカル保存のみ（既存処理が動く）
+  const title = document.getElementById("memoTitle").value.trim();
+  if (!title) return;
+  try {
+    await apiFetch("/memos", {
+      method: "POST",
+      body: JSON.stringify({
+        title,
+        camera:        document.getElementById("memoCameraName").value.trim(),
+        focal_mm:      parseFloat(document.getElementById("memoFocal").value) || null,
+        aperture:      document.getElementById("memoFval").value.trim(),
+        shutter_speed: document.getElementById("memoSS").value.trim(),
+        iso:           document.getElementById("memoISO").value.trim(),
+        distance:      document.getElementById("memoDist").value.trim(),
+        notes:         document.getElementById("memoNote").value.trim()
+      })
+    });
+    await syncFromCloud();
+  } catch (e) {
+    console.error("メモ保存失敗:", e);
+  }
+}, true);
+
+// ---- 削除をクラウドにも反映 ----
+// renderSaved / renderMemos の削除ボタンにcloudDeleteを追加
+async function cloudDeleteLens(id) {
+  if (!_token || !id) return;
+  try { await apiFetch("/lenses/" + id, { method: "DELETE" }); } catch {}
+}
+async function cloudDeleteMemo(id) {
+  if (!_token || !id) return;
+  try { await apiFetch("/memos/" + id, { method: "DELETE" }); } catch {}
+}
+
+// ---- 共有ボタン ----
+async function shareToggle(id, btn) {
+  if (!_token) { alert("ログインが必要です"); return; }
+  try {
+    const res = await apiFetch("/lenses/" + id + "/share", { method: "PATCH" });
+    if (res.is_public) {
+      const url = "http://localhost:3001/api/share/" + id;
+      navigator.clipboard?.writeText(url);
+      btn.textContent = "🔗 URLをコピーしました";
+    } else {
+      btn.textContent = "🌐 共有する";
+    }
+    await syncFromCloud();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+</script>
+</body>
+</html>

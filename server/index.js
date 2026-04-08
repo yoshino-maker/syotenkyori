@@ -17,13 +17,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // フロントエンドのファイルを配信
 app.use(express.static(path.join(__dirname, '..')))
 
-// CORS設定（環境変数 ALLOWED_ORIGIN でデプロイ先URLを追加可能）
+// CORS設定
 app.use(cors({
   origin: (origin, callback) => {
     const allowed = [
       'http://localhost:3001',
       'http://127.0.0.1:3001',
       'null',
+      'https://syotenkyori.onrender.com',
       ...(process.env.ALLOWED_ORIGIN ? [process.env.ALLOWED_ORIGIN] : [])
     ];
     if (!origin || allowed.includes(origin)) callback(null, true);
